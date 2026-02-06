@@ -25,7 +25,7 @@
 *   <a href="https://github.com/KekkoCoppola"><img src="https://github.com/KekkoCoppola.png" width="25" style="border-radius: 50%; vertical-align: middle;" /> **Francesco Coppola**</a>
 
 ## 📖 Descrizione del Progetto
-**SmartPrice** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
+**DealHunter** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
 L'obiettivo è contrastare l'asimmetria informativa tra venditore e acquirente, fornendo una stima oggettiva della fascia di prezzo ("Budget", "Mid-Range", "High-End", "Premium") basata esclusivamente sulle specifiche tecniche del dispositivo.
 
 Il progetto è stato sviluppato come elaborato finale per il corso di **Machine Learning 2025/26**.
