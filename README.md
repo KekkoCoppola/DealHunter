@@ -1,6 +1,6 @@
 # 📱 DealHunter
 <div align="center">
-  <img src="MainLogo.png" alt="DealHunter Logo" width="400" />
+  <img src="src/img/MainLogo.png" alt="DealHunter Logo" width="400" />
   
   <h3>Cerca la trasparenza nel mercato dell'usato</h3>
   
