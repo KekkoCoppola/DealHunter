@@ -5,7 +5,7 @@
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 
 ## 📖 Descrizione del Progetto
-**SmartPrice** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
+**DealHunter** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
 L'obiettivo è contrastare l'asimmetria informativa tra venditore e acquirente, fornendo una stima oggettiva della fascia di prezzo ("Budget", "Mid-Range", "High-End", "Premium") basata esclusivamente sulle specifiche tecniche del dispositivo.
 
 Il progetto è stato sviluppato come elaborato finale per il corso di **Machine Learning 2025/26**.
@@ -23,9 +23,8 @@ Il progetto soddisfa i requisiti accademici attraverso una pipeline di Data Scie
 
 ### 1. Clona la repository
 ```bash
-git clone [https://github.com/TUO_USERNAME/SmartPrice_Project.git](https://github.com/KekkoCoppola/DealHunter.git)
-cd DealHunter_Project
-
+git clone https://github.com/KekkoCoppola/DealHunter.git
+cd DealHunter
 ```
 
 ### 2. Installa le dipendenze
@@ -34,7 +33,6 @@ cd DealHunter_Project
 
 ```bash
 pip install -r requirements.txt
-
 ```
 
 ### 3. Avvia l'applicazione Web
@@ -42,8 +40,8 @@ pip install -r requirements.txt
 Il progetto include una dashboard interattiva realizzata con **Streamlit**.
 
 ```bash
+cd src
 streamlit run app.py
-
 ```
 
 L'applicazione sarà accessibile all'indirizzo: `http://localhost:8501`
@@ -51,19 +49,25 @@ L'applicazione sarà accessibile all'indirizzo: `http://localhost:8501`
 ## 📂 Struttura della Repository
 
 ```text
-SmartPrice_Project/
-├── app.py                  # Codice dell'interfaccia Web (Streamlit)
-├── requirements.txt        # Librerie necessarie
-├── README.md               # Documentazione del progetto
-├── data/                   # Dataset (Raw e Processed)
+DealHunter/
+├── README.md                    # Documentazione del progetto
+├── requirements.txt             # Librerie necessarie
+├── data/                        # Dataset
 │   └── used_device_data.csv
-├── model/                  # Artefatti serializzati
+├── model/                       # Artefatti serializzati
 │   ├── random_forest_model.pkl
 │   ├── scaler.pkl
 │   └── feature_names.pkl
-└── notebooks/              # Analisi esplorativa e Training
-    └── Progetto_ML_Analisi.ipynb
-
+├── notebooks/                   # Analisi esplorativa e Training
+│   └── dealhunter.py
+└── src/                         # Codice sorgente modulare
+    ├── app.py                   # Interfaccia Web (Streamlit)
+    ├── config.py                # Configurazioni centralizzate
+    ├── preprocessing.py         # Pulizia e imputazione dati
+    ├── feature_engineering.py   # Trasformazioni e encoding
+    ├── training.py              # Training e ottimizzazione modelli
+    ├── predictor.py             # Classe per predizioni
+    └── pipeline.py              # Pipeline completa di training
 ```
 
 ## 📊 Risultati Sperimentali
@@ -83,6 +87,4 @@ Il modello **Random Forest** (ottimizzato) ha raggiunto un'accuratezza paragonab
 
 ## 👥 Autori
 
-* **[Francesco Coppola]** - *Full Stack Developer*
-
-
+* **Francesco Coppola** - *Full Stack Developer*
