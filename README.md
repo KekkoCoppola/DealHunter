@@ -1,124 +1,165 @@
 # 📱 DealHunter
+
 <div align="center">
   <img src="src/img/MainLogo.png" alt="DealHunter Logo" width="400" />
   
   <h3>Cerca la trasparenza nel mercato dell'usato</h3>
   
   <p align="center">
-    <a href="#-il-team">Il Team</a> •
-    <a href="#-Descrizione-del-progetto">Descrizione</a> •
-    <a href="#-Obiettivi-e-Key-Features">Obiettivi</a> •
-    <a href="#-Struttura-della-Repository">Struttura</a> •
-    <a href="#-Risultati-Sperimentali">Risultati Sperimentali</a> •
-    <a href="#Limiti-Noti">Limiti Del Modello</a> •
-    <a href="#-documentazione">Documentazione</a> •
-    <a href="#-roadmap-futura">Roadmap</a>
+    <a href="#-descrizione">Descrizione</a> •
+    <a href="#-come-funziona">Come Funziona</a> •
+    <a href="#-installazione">Installazione</a> •
+    <a href="#-struttura">Struttura</a> •
+    <a href="#-risultati">Risultati</a> •
+    <a href="#-limiti">Limiti</a>
   </p>
 </div>
 
-
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
-![Status](https://img.shields.io/badge/Status-on-going)
+![ML](https://img.shields.io/badge/ML-Logistic%20Regression-green)
 
-## 👥 Full Stack Developer
-*   <a href="https://github.com/KekkoCoppola"><img src="https://github.com/KekkoCoppola.png" width="25" style="border-radius: 50%; vertical-align: middle;" /> **Francesco Coppola**</a>
+---
 
-## 📖 Descrizione del Progetto
-**DealHunter** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
-L'obiettivo è contrastare l'asimmetria informativa tra venditore e acquirente, fornendo una stima oggettiva della fascia di prezzo ("Budget", "Mid-Range", "High-End", "Premium") basata esclusivamente sulle specifiche tecniche del dispositivo.
+## 👤 Autore
 
-Il progetto è stato sviluppato come elaborato finale per il corso di **Machine Learning 2025/26**.
+<a href="https://github.com/KekkoCoppola">
+  <img src="https://github.com/KekkoCoppola.png" width="30" style="border-radius: 50%; vertical-align: middle;" />
+  <strong>Francesco Coppola</strong>
+</a>
 
-## 🎯 Obiettivi e Key Features
-Il progetto soddisfa i requisiti accademici attraverso una pipeline di Data Science completa:
+---
 
-* **Data Cleaning Avanzato**: Gestione di missing values "nascosti" (zeri fittizi in fotocamere/batterie) tramite imputazione statistica basata su Brand e Anno di rilascio.
-* **Outlier Detection**: Identificazione e rimozione di dispositivi non pertinenti (Tablet > 400g) tramite analisi bivariata Peso/Schermo.
-* **Feature Engineering**: Creazione di variabili derivate come `model_age` (età del dispositivo) per gestire l'obsolescenza tecnologica.
-* **Model Selection**: Confronto critico tra modelli lineari (**Logistic Regression**) e non lineari (**Random Forest**), con ottimizzazione degli iperparametri (GridSearch).
-* **Explainability (XAI)**: Analisi della *Feature Importance*, che ha rivelato come il comparto fotografico (Front/Rear Camera) influenzi il prezzo più della RAM.
+## 📖 Descrizione
 
-## 🛠️ Installazione e Utilizzo
+**DealHunter** è un'applicazione di Machine Learning che stima la fascia di prezzo di uno smartphone usato basandosi sulle sue specifiche tecniche.
+
+L'obiettivo è contrastare l'**asimmetria informativa** tra venditore e acquirente, fornendo una valutazione oggettiva in 4 fasce:
+- 💰 **Budget**: < 150€
+- ⚖️ **Mid-Range**: 150€ - 300€
+- 🚀 **High-End**: 300€ - 600€
+- 💎 **Premium**: > 600€
+
+> Progetto sviluppato per il corso di **Machine Learning 2025/26**.
+
+---
+
+## 🔬 Come Funziona
+
+### Pipeline di Data Science
+
+| Step | Descrizione |
+|------|-------------|
+| **1. Preprocessing** | Gestione missing values (zeri fittizi), imputazione statistica per Brand/Anno |
+| **2. Feature Engineering** | Creazione `model_age`, One-Hot Encoding, rimozione data leakage |
+| **3. EDA** | Analisi correlazione, identificazione feature ridondanti |
+| **4. Training** | Confronto 3 modelli: Logistic Regression, Random Forest, Gradient Boosting |
+| **5. Valutazione** | Il modello migliore viene salvato (tipicamente LR per linearità dei dati) |
+
+### Approccio Metodologico
+
+- **Apprendimento Supervisionato** → Classificazione multiclasse
+- **Modello Finale** → Logistic Regression (~65% accuracy)
+- **Perché LR?** → Le relazioni feature-prezzo sono prevalentemente lineari (Rasoio di Occam)
+
+---
+
+## 🛠️ Installazione
 
 ### 1. Clona la repository
 ```bash
 git clone https://github.com/KekkoCoppola/DealHunter.git
 cd DealHunter
-=======
-git clone [https://github.com/KekkoCoppola/DealHunter.git](https://github.com/KekkoCoppola/DealHunter.git)
-cd DealHunter_Project
 ```
 
 ### 2. Installa le dipendenze
-
-È consigliato l'uso di un virtual environment.
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Avvia l'applicazione Web
-
-Il progetto include una dashboard interattiva realizzata con **Streamlit**.
-
+### 3. Addestra il modello (una tantum)
 ```bash
 cd src
+python pipeline.py
+```
+
+### 4. Avvia l'applicazione
+```bash
 streamlit run app.py
 ```
 
-L'applicazione sarà accessibile all'indirizzo: `http://localhost:8501`
+L'app sarà disponibile su: `http://localhost:8501`
 
-## 📂 Struttura della Repository
+---
 
-```text
+## 📂 Struttura
+
+```
 DealHunter/
-<<<<<<< HEAD
-├── README.md                    # Documentazione del progetto
-├── requirements.txt             # Librerie necessarie
-├── data/                        # Dataset
-=======
-├── app.py                  # Codice dell'interfaccia Web (Streamlit)
-├── requirements.txt        # Librerie necessarie
-├── README.md               # Documentazione del progetto
-├── data/                   # Dataset (Raw e Processed)
->>>>>>> 0ae08f57e043bd4e912ed173c2f8af5f23fac012
-│   └── used_device_data.csv
-├── model/                       # Artefatti serializzati
-│   ├── random_forest_model.pkl
-│   ├── scaler.pkl
-│   └── feature_names.pkl
-├── notebooks/                   # Analisi esplorativa e Training
-│   └── dealhunter.py
-└── src/                         # Codice sorgente modulare
-    ├── app.py                   # Interfaccia Web (Streamlit)
-    ├── config.py                # Configurazioni centralizzate
-    ├── preprocessing.py         # Pulizia e imputazione dati
-    ├── feature_engineering.py   # Trasformazioni e encoding
-    ├── training.py              # Training e ottimizzazione modelli
-    ├── predictor.py             # Classe per predizioni
-    └── pipeline.py              # Pipeline completa di training
+├── data/
+│   ├── used_device_data.csv           # Dataset originale
+│   └── used_device_data_processed.csv # Dataset processato
+├── model/
+│   ├── logistic_regression_model.pkl  # Modello addestrato
+│   ├── scaler.pkl                     # StandardScaler
+│   └── feature_names.pkl              # Lista feature
+├── notebooks/
+│   └── DealHunter.ipynb               # Analisi esplorativa
+├── src/
+│   ├── config.py                      # Configurazione
+│   ├── preprocessing.py               # Pulizia dati
+│   ├── feature_engineering.py         # Trasformazioni
+│   ├── training.py                    # Addestramento modelli
+│   ├── analytics.py                   # Grafici e analisi
+│   ├── pipeline.py                    # Pipeline completa
+│   ├── predictor.py                   # Classe predizioni
+│   └── app.py                         # Interfaccia Streamlit
+├── README.md
+└── requirements.txt
 ```
 
-## 📊 Risultati Sperimentali
+---
 
-Il modello **Random Forest** (ottimizzato) ha raggiunto un'accuratezza paragonabile alla Logistic Regression (~65% su 4 classi bilanciate), evidenziando una forte linearità nelle determinanti di prezzo per le fasce estreme (Budget/Premium), con maggiore incertezza nella distinzione tra le fasce medie.
+## 📊 Risultati
 
-### Top 3 Fattori di Prezzo:
+### Confronto Modelli
 
-1. 📸 **Front Camera MP** (Selfie Camera)
-2. 📷 **Rear Camera MP**
+| Modello | Accuracy |
+|---------|----------|
+| **Logistic Regression** | **~65%** ✅ |
+| Random Forest | ~62% |
+| Gradient Boosting | ~63% |
+
+### Top 3 Feature Influenti
+
+1. 📸 **Front Camera MP** (fotocamera selfie)
+2. 📷 **Rear Camera MP** (fotocamera principale)
 3. 🔋 **Battery Capacity**
 
-## ⚠️ Limiti Noti
+### Interpretazione
 
-* **Data Drift**: Il dataset utilizzato copre dispositivi fino al 2020. I dispositivi successivi vengono valutati con gli standard di mercato del 2020.
-* **Condizioni Estetiche**: Il modello non considera graffi o usura fisica, ma solo le specifiche hardware.
+Logistic Regression batte i modelli ensemble perché le relazioni sono **lineari**:
+> Più RAM → prezzo più alto | Più batteria → prezzo più alto
 
-<<<<<<< HEAD
-## 👥 Autori
+Non servono modelli complessi per catturare queste relazioni.
 
-* **Francesco Coppola** - *Full Stack Developer*
-=======
+---
 
->>>>>>> 0ae08f57e043bd4e912ed173c2f8af5f23fac012
+## ⚠️ Limiti
+
+| Limite | Descrizione |
+|--------|-------------|
+| **Data Drift** | Dataset fino al 2020. Dispositivi recenti valutati con standard 2020 |
+| **Hardware Only** | Non considera condizioni estetiche (graffi, usura) |
+| **Mercato Italiano** | Fasce di prezzo calibrate sul mercato italiano |
+
+---
+
+## 📚 Tecnologie
+
+- **Python 3.9+**
+- **Pandas** / **NumPy** - Manipolazione dati
+- **Scikit-learn** - Machine Learning
+- **Matplotlib** / **Seaborn** - Visualizzazioni
+- **Streamlit** - Web App
+- **Joblib** - Serializzazione modelli
