@@ -1,8 +1,8 @@
 # 📱 DealHunter
 <div align="center">
-  <img src="Mainlogo.png" alt="SINTONIA Logo" width="400" />
+  <img src="MainLogo.png" alt="DealHunter Logo" width="400" />
   
-  <h3>Sistema INtegrato per il Triage e l'Osservazione della salute mentale in CampaNIA</h3>
+  <h3>Cerca la trasparenza nel mercato dell'usato</h3>
   
   <p align="center">
     <a href="#-il-team">Il Team</a> •
