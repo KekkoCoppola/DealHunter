@@ -23,8 +23,8 @@ Il progetto soddisfa i requisiti accademici attraverso una pipeline di Data Scie
 
 ### 1. Clona la repository
 ```bash
-git clone [https://github.com/TUO_USERNAME/SmartPrice_Project.git](https://github.com/TUO_USERNAME/SmartPrice_Project.git)
-cd SmartPrice_Project
+git clone [https://github.com/TUO_USERNAME/SmartPrice_Project.git](https://github.com/KekkoCoppola/DealHunter.git)
+cd DealHunter_Project
 
 ```
 
