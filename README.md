@@ -1,12 +1,3 @@
-Ecco a te una bozza professionale per il file **`README.md`**.
-
-Questo file è il "biglietto da visita" del tuo progetto su GitHub. È la prima cosa che il professore (o un recruiter) leggerà. Ho strutturato il testo per evidenziare proprio i punti che il corso richiede (pulizia dati, analisi outlier, scelta del modello).
-
-Copia e incolla questo contenuto in un file chiamato `README.md` nella cartella principale del tuo progetto.
-
----
-
-```markdown
 # 📱 DealHunter
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
@@ -92,24 +83,6 @@ Il modello **Random Forest** (ottimizzato) ha raggiunto un'accuratezza paragonab
 
 ## 👥 Autori
 
-* **[Tuo Nome Cognome]** - *Data Analysis & Modeling*
-* **[Nome Cognome Collega se c'è]** - *Web App & Deployment*
+* **[Francesco Coppola]** - *Full Stack Developer*
 
----
 
-*Progetto realizzato per l'esame di Machine Learning - Prof. G. Polese / Prof.ssa L. Caruccio*
-
-```
-
-***
-
-### Prossimo Step (L'ultimo!)
-Ora hai tutto: codice, app, dataset pulito e documentazione.
-
-1.  Crea l'account GitHub (se non ce l'hai).
-2.  Crea una "New Repository" chiamata `SmartPrice_Project`.
-3.  Carica i file che abbiamo preparato.
-
-**Vuoi che ti spieghi come caricare tutto su GitHub passo passo usando il terminale o preferisci usare l'interfaccia web "drag and drop" (più facile)?**
-
-```
