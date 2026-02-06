@@ -7,7 +7,7 @@ Copia e incolla questo contenuto in un file chiamato `README.md` nella cartella 
 ---
 
 ```markdown
-# 📱 SmartPrice: Fair Value Estimator for Used Devices
+# 📱 DealHunter
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
