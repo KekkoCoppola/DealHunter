@@ -1,7 +1,28 @@
 # 📱 DealHunter
+<div align="center">
+  <img src="MainLogo.png" alt="DealHunter Logo" width="400" />
+  
+  <h3>Cerca la trasparenza nel mercato dell'usato</h3>
+  
+  <p align="center">
+    <a href="#-il-team">Il Team</a> •
+    <a href="#-Descrizione-del-progetto">Descrizione</a> •
+    <a href="#-Obiettivi-e-Key-Features">Obiettivi</a> •
+    <a href="#-Struttura-della-Repository">Struttura</a> •
+    <a href="#-Risultati-Sperimentali">Risultati Sperimentali</a> •
+    <a href="#Limiti-Noti">Limiti Del Modello</a> •
+    <a href="#-documentazione">Documentazione</a> •
+    <a href="#-roadmap-futura">Roadmap</a>
+  </p>
+</div>
+
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
+![Status](https://img.shields.io/badge/Status-on-going)
+
+## 👥 Full Stack Developer
+*   <a href="https://github.com/KekkoCoppola"><img src="https://github.com/KekkoCoppola.png" width="25" style="border-radius: 50%; vertical-align: middle;" /> **Francesco Coppola**</a>
 
 ## 📖 Descrizione del Progetto
 **DealHunter** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
