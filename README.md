@@ -1,4 +1,21 @@
 # 📱 DealHunter
+<div align="center">
+  <img src="Mainlogo.png" alt="SINTONIA Logo" width="400" />
+  
+  <h3>Sistema INtegrato per il Triage e l'Osservazione della salute mentale in CampaNIA</h3>
+  
+  <p align="center">
+    <a href="#-il-team">Il Team</a> •
+    <a href="#-visione-del-progetto">Visione</a> •
+    <a href="#-il-problema-vs-la-soluzione">Problema vs Soluzione</a> •
+    <a href="#-algoritmi-chiave">Algoritmi</a> •
+    <a href="#-architettura-di-sistema">Architettura</a> •
+    <a href="#-funzionalità-per-ruolo">Funzionalità</a> •
+    <a href="#-documentazione">Documentazione</a> •
+    <a href="#-roadmap-futura">Roadmap</a>
+  </p>
+</div>
+
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
