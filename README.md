@@ -43,7 +43,7 @@ Il progetto soddisfa i requisiti accademici attraverso una pipeline di Data Scie
 
 ### 1. Clona la repository
 ```bash
-git clone [https://github.com/TUO_USERNAME/SmartPrice_Project.git](https://github.com/KekkoCoppola/DealHunter.git)
+git clone [https://github.com/KekkoCoppola/DealHunter.git](https://github.com/KekkoCoppola/DealHunter.git)
 cd DealHunter_Project
 
 ```
@@ -71,7 +71,7 @@ L'applicazione sarà accessibile all'indirizzo: `http://localhost:8501`
 ## 📂 Struttura della Repository
 
 ```text
-SmartPrice_Project/
+DealHunter/
 ├── app.py                  # Codice dell'interfaccia Web (Streamlit)
 ├── requirements.txt        # Librerie necessarie
 ├── README.md               # Documentazione del progetto
