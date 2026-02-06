@@ -43,14 +43,11 @@ Il progetto soddisfa i requisiti accademici attraverso una pipeline di Data Scie
 
 ### 1. Clona la repository
 ```bash
-<<<<<<< HEAD
 git clone https://github.com/KekkoCoppola/DealHunter.git
 cd DealHunter
 =======
 git clone [https://github.com/KekkoCoppola/DealHunter.git](https://github.com/KekkoCoppola/DealHunter.git)
 cd DealHunter_Project
-
->>>>>>> 0ae08f57e043bd4e912ed173c2f8af5f23fac012
 ```
 
 ### 2. Installa le dipendenze
