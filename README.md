@@ -2,7 +2,6 @@
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
-![Status](https://img.shields.io/badge/Status-Completed-success)
 
 ## 📖 Descrizione del Progetto
 **DealHunter** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
@@ -23,8 +22,14 @@ Il progetto soddisfa i requisiti accademici attraverso una pipeline di Data Scie
 
 ### 1. Clona la repository
 ```bash
+<<<<<<< HEAD
 git clone https://github.com/KekkoCoppola/DealHunter.git
 cd DealHunter
+=======
+git clone [https://github.com/KekkoCoppola/DealHunter.git](https://github.com/KekkoCoppola/DealHunter.git)
+cd DealHunter_Project
+
+>>>>>>> 0ae08f57e043bd4e912ed173c2f8af5f23fac012
 ```
 
 ### 2. Installa le dipendenze
@@ -50,9 +55,16 @@ L'applicazione sarà accessibile all'indirizzo: `http://localhost:8501`
 
 ```text
 DealHunter/
+<<<<<<< HEAD
 ├── README.md                    # Documentazione del progetto
 ├── requirements.txt             # Librerie necessarie
 ├── data/                        # Dataset
+=======
+├── app.py                  # Codice dell'interfaccia Web (Streamlit)
+├── requirements.txt        # Librerie necessarie
+├── README.md               # Documentazione del progetto
+├── data/                   # Dataset (Raw e Processed)
+>>>>>>> 0ae08f57e043bd4e912ed173c2f8af5f23fac012
 │   └── used_device_data.csv
 ├── model/                       # Artefatti serializzati
 │   ├── random_forest_model.pkl
@@ -85,6 +97,10 @@ Il modello **Random Forest** (ottimizzato) ha raggiunto un'accuratezza paragonab
 * **Data Drift**: Il dataset utilizzato copre dispositivi fino al 2020. I dispositivi successivi vengono valutati con gli standard di mercato del 2020.
 * **Condizioni Estetiche**: Il modello non considera graffi o usura fisica, ma solo le specifiche hardware.
 
+<<<<<<< HEAD
 ## 👥 Autori
 
 * **Francesco Coppola** - *Full Stack Developer*
+=======
+
+>>>>>>> 0ae08f57e043bd4e912ed173c2f8af5f23fac012
