@@ -6,11 +6,11 @@
   
   <p align="center">
     <a href="#-il-team">Il Team</a> •
-    <a href="#-visione-del-progetto">Visione</a> •
-    <a href="#-il-problema-vs-la-soluzione">Problema vs Soluzione</a> •
-    <a href="#-algoritmi-chiave">Algoritmi</a> •
-    <a href="#-architettura-di-sistema">Architettura</a> •
-    <a href="#-funzionalità-per-ruolo">Funzionalità</a> •
+    <a href="#-Descrizione-del-progetto">Descrizione</a> •
+    <a href="#-Obiettivi-e-Key-Features">Obiettivi</a> •
+    <a href="#-Struttura-della-Repository">Struttura</a> •
+    <a href="#-Risultati-Sperimentali">Risultati Sperimentali</a> •
+    <a href="#-Limiti-Noti">Limiti Del Modello</a> •
     <a href="#-documentazione">Documentazione</a> •
     <a href="#-roadmap-futura">Roadmap</a>
   </p>
@@ -20,6 +20,9 @@
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
+
+## 👥 Full Stack Developer
+*   <a href="https://github.com/KekkoCoppola"><img src="https://github.com/KekkoCoppola.png" width="25" style="border-radius: 50%; vertical-align: middle;" /> **Francesco Coppola**</a>
 
 ## 📖 Descrizione del Progetto
 **SmartPrice** è un'applicazione di Machine Learning progettata per portare trasparenza nel mercato degli smartphone usati.
@@ -97,9 +100,5 @@ Il modello **Random Forest** (ottimizzato) ha raggiunto un'accuratezza paragonab
 
 * **Data Drift**: Il dataset utilizzato copre dispositivi fino al 2020. I dispositivi successivi vengono valutati con gli standard di mercato del 2020.
 * **Condizioni Estetiche**: Il modello non considera graffi o usura fisica, ma solo le specifiche hardware.
-
-## 👥 Autori
-
-* **[Francesco Coppola]** - *Full Stack Developer*
 
 
