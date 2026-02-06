@@ -10,7 +10,7 @@
     <a href="#-Obiettivi-e-Key-Features">Obiettivi</a> •
     <a href="#-Struttura-della-Repository">Struttura</a> •
     <a href="#-Risultati-Sperimentali">Risultati Sperimentali</a> •
-    <a href="#-Limiti-Noti">Limiti Del Modello</a> •
+    <a href="#Limiti-Noti">Limiti Del Modello</a> •
     <a href="#-documentazione">Documentazione</a> •
     <a href="#-roadmap-futura">Roadmap</a>
   </p>
@@ -96,7 +96,7 @@ Il modello **Random Forest** (ottimizzato) ha raggiunto un'accuratezza paragonab
 2. 📷 **Rear Camera MP**
 3. 🔋 **Battery Capacity**
 
-### ⚠️ Limiti Noti
+## ⚠️ Limiti Noti
 
 * **Data Drift**: Il dataset utilizzato copre dispositivi fino al 2020. I dispositivi successivi vengono valutati con gli standard di mercato del 2020.
 * **Condizioni Estetiche**: Il modello non considera graffi o usura fisica, ma solo le specifiche hardware.
