@@ -155,6 +155,19 @@ Non servono modelli complessi per catturare queste relazioni.
 
 ---
 
+## 🚀 Roadmap Futura
+
+| Priorità | Miglioramento | Descrizione |
+|----------|---------------|-------------|
+| 🔴 Alta | **Pipeline MLOps** | Retraining automatico periodico su dati aggiornati |
+| 🔴 Alta | **Dataset Aggiornato** | Integrazione API (es. GSMArena, Kaggle) per dati 2023-2024 |
+| 🟡 Media | **Condizioni Estetiche** | Input per stato batteria e condizioni fisiche |
+| 🟡 Media | **Multi-Categoria** | Estensione a tablet, smartwatch, laptop |
+| 🟢 Bassa | **Deploy Cloud** | Hosting su Streamlit Cloud o Heroku |
+| 🟢 Bassa | **API REST** | Endpoint per integrazione con altre applicazioni |
+
+---
+
 ## 📚 Tecnologie
 
 - **Python 3.9+**

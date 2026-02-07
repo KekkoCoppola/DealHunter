@@ -480,7 +480,7 @@ def save_artifacts(model,
     ARTEFATTI SALVATI:
     
     1. MODELLO (.pkl):
-       Il Random Forest addestrato, pronto per fare predizioni.
+       Il modello addestrato (LR o RF), pronto per fare predizioni.
        
     2. SCALER (.pkl):
        Lo StandardScaler con i parametri (media, std) del training.

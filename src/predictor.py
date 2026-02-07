@@ -104,7 +104,7 @@ class SmartphonePredictor:
         dell'istanziazione, per efficienza.
         
         Args:
-            model_path: Path del modello Random Forest serializzato
+            model_path: Path del modello addestrato serializzato
             scaler_path: Path dello StandardScaler serializzato
             features_path: Path della lista dei nomi delle feature
         """

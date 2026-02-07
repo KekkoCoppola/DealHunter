@@ -42,7 +42,7 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')     # Dataset CSV
 
 # --- Path specifici dei file ---
 
-# Modello Random Forest addestrato (formato pickle)
+# Modello addestrato (Logistic Regression o modello migliore)
 MODEL_PATH = os.path.join(MODEL_DIR, 'logistic_regression_model.pkl')
 
 # StandardScaler con parametri (media, std) del training
