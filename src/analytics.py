@@ -4,24 +4,22 @@
 analytics.py - Modulo per Visualizzazione e Analisi Esplorativa
 ================================================================================
 
-Questo modulo contiene tutte le funzioni per creare grafici e analisi visive.
-È pensato per essere usato sia nella pipeline che nel notebook.
+ORDINE CRONOLOGICO DEI GRAFICI (per presentazione):
 
-FUNZIONALITÀ PRINCIPALI:
-    1. Analisi Outlier: grafico scatter peso vs schermo
-    2. Distribuzione Classi: grafico a barre delle categorie target
-    3. Correlazione Feature: heatmap per identificare ridondanze
-    4. Confusion Matrix: valutazione errori del modello
-    5. Feature Importance: grafico delle feature più influenti
+FASE 1 - DATA UNDERSTANDING (dataset RAW, prima di qualsiasi modifica):
+    1.1 plot_price_distribution()      → Distribuzione prezzo ORIGINALE (mostra sbilanciamento)
+    1.2 plot_outlier_analysis()        → Scatter peso/schermo (identifica tablet PRIMA di rimuoverli)
+    1.3 plot_feature_boxplots()        → Boxplot delle feature numeriche (distribuzione, outlier)
+    1.4 plot_missing_values()          → Heatmap dei valori mancanti (zeri fittizi)
 
-USO:
-    from analytics import plot_correlation_heatmap, plot_confusion_matrix
-    
-    # Per visualizzare la correlazione
-    plot_correlation_heatmap(X, save_path='grafici/correlazione.png')
-    
-    # Per visualizzare la confusion matrix
-    plot_confusion_matrix(y_test, y_pred, save_path='grafici/cm.png')
+FASE 2 - POST-PREPROCESSING (dopo pulizia e feature engineering):
+    2.1 plot_class_distribution()      → Distribuzione classi DOPO qcut (dimostra bilanciamento)
+    2.2 plot_correlation_heatmap()     → Correlazione feature (identifica ridondanze)
+
+FASE 3 - POST-TRAINING (valutazione modello):
+    3.1 plot_model_comparison()        → Confronto accuracy tra modelli
+    3.2 plot_confusion_matrix()        → Dove il modello sbaglia
+    3.3 plot_feature_importance()      → Quali feature contano di più
 
 ================================================================================
 """
@@ -34,8 +32,59 @@ from typing import Optional, List, Tuple
 
 
 # ==============================================================================
-# 1. ANALISI OUTLIER (Grafico Scatter Peso vs Schermo)
+# FASE 1: DATA UNDERSTANDING (Dataset RAW)
 # ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1.1 DISTRIBUZIONE PREZZO ORIGINALE
+# ------------------------------------------------------------------------------
+
+def plot_price_distribution(df: pd.DataFrame,
+                            price_column: str = 'normalized_used_price',
+                            save_path: Optional[str] = None,
+                            show: bool = True) -> None:
+    """
+    Visualizza la distribuzione del prezzo PRIMA di applicare qcut.
+    
+    SCOPO: Dimostrare che i prezzi NON sono uniformi, quindi serve qcut
+    (divisione per quantili) invece di cut (divisione per intervalli uguali).
+    
+    QUANDO USARE: Sul dataset RAW, prima di qualsiasi trasformazione.
+    
+    Args:
+        df: DataFrame con la colonna prezzo
+        price_column: Nome della colonna prezzo (default: normalized_used_price)
+        save_path: Se specificato, salva il grafico
+        show: Se True, mostra il grafico
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # --- Istogramma ---
+    axes[0].hist(df[price_column], bins=30, color='steelblue', edgecolor='black', alpha=0.7)
+    axes[0].set_xlabel('Prezzo Normalizzato', fontsize=10)
+    axes[0].set_ylabel('Frequenza', fontsize=10)
+    axes[0].axvline(df[price_column].median(), color='red', linestyle='--', 
+                    label=f'Mediana: {df[price_column].median():.2f}')
+    axes[0].legend()
+    
+    # --- Boxplot ---
+    axes[1].boxplot(df[price_column].dropna(), vert=True)
+    axes[1].set_ylabel('Prezzo Normalizzato', fontsize=10)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        print(f"✅ Grafico distribuzione prezzo salvato in: {save_path}")
+    
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+# ------------------------------------------------------------------------------
+# 1.2 ANALISI OUTLIER (Scatter Peso vs Schermo)
+# ------------------------------------------------------------------------------
 
 def plot_outlier_analysis(df: pd.DataFrame,
                           weight_threshold: float = 350,
@@ -43,45 +92,47 @@ def plot_outlier_analysis(df: pd.DataFrame,
                           save_path: Optional[str] = None,
                           show: bool = True) -> None:
     """
-    Crea un grafico scatter per identificare outlier (tablet) basato su peso e schermo.
+    Visualizza scatter plot peso vs schermo per identificare tablet (outlier).
     
-    Questo grafico è fondamentale per giustificare la rimozione dei tablet dal dataset.
-    I dispositivi oltre la soglia (linea rossa) vengono rimossi.
+    SCOPO: Giustificare la rimozione dei dispositivi oltre le soglie.
+    I tablet (peso > 350g, schermo > 20cm) devono essere esclusi.
+    
+    QUANDO USARE: Sul dataset RAW, PRIMA della rimozione outlier.
     
     Args:
         df: DataFrame con colonne 'weight' e 'screen_size'
         weight_threshold: Soglia peso in grammi (default: 350g)
         screen_threshold: Soglia schermo in cm (default: 20cm)
-        save_path: Se specificato, salva il grafico in questo percorso
-        show: Se True, mostra il grafico a schermo
+        save_path: Se specificato, salva il grafico
+        show: Se True, mostra il grafico
     """
-    # --- Creazione del grafico ---
     plt.figure(figsize=(10, 6))
     
-    # Scatter plot colorato per brand
+    # Scatter plot
     sns.scatterplot(
         data=df, 
         x='weight', 
         y='screen_size', 
-        hue='device_brand', 
+        hue='device_brand' if 'device_brand' in df.columns else None,
         alpha=0.6, 
         legend=False
     )
     
-    # Linee di soglia per identificare tablet
-    plt.axvline(x=weight_threshold, color='red', linestyle='--', 
+    # Linee di soglia
+    plt.axvline(x=weight_threshold, color='red', linestyle='--', linewidth=2,
                 label=f'Soglia Peso ({weight_threshold}g)')
-    plt.axhline(y=screen_threshold, color='orange', linestyle='--', 
+    plt.axhline(y=screen_threshold, color='orange', linestyle='--', linewidth=2,
                 label=f'Soglia Schermo ({screen_threshold}cm)')
     
-    # Etichette e titolo
-    plt.title('Analisi Bivariata: Identificazione Tablet (Outlier)', fontsize=14)
+    # Evidenzia zona outlier
+    plt.fill_between([weight_threshold, df['weight'].max() + 50], 
+                     0, df['screen_size'].max() + 5, 
+                     alpha=0.1, color='red', label='Zona Tablet (da rimuovere)')
     plt.xlabel('Peso (grammi)', fontsize=12)
     plt.ylabel('Dimensione Schermo (cm)', fontsize=12)
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.tight_layout()
     
-    # Salvataggio opzionale
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
         print(f"✅ Grafico outlier salvato in: {save_path}")
@@ -92,19 +143,140 @@ def plot_outlier_analysis(df: pd.DataFrame,
         plt.close()
 
 
+# ------------------------------------------------------------------------------
+# 1.3 BOXPLOT FEATURE NUMERICHE
+# ------------------------------------------------------------------------------
+
+def plot_feature_boxplots(df: pd.DataFrame,
+                          features: Optional[List[str]] = None,
+                          save_path: Optional[str] = None,
+                          show: bool = True) -> None:
+    """
+    Visualizza boxplot delle feature numeriche per analizzare distribuzioni.
+    
+    SCOPO: Mostrare la distribuzione di ogni feature, identificare outlier
+    e capire la scala dei valori.
+    QUANDO USARE: Sul dataset RAW.
+    
+    Args:
+        df: DataFrame con le feature
+        features: Lista feature da plottare (default: feature principali)
+        save_path: Se specificato, salva il grafico
+        show: Se True, mostra il grafico
+    """
+    if features is None:
+        features = ['ram', 'internal_memory', 'battery', 'weight', 
+                    'screen_size', 'rear_camera_mp', 'front_camera_mp']
+    
+    # Filtra solo colonne presenti
+    features = [f for f in features if f in df.columns]
+    
+    n_features = len(features)
+    fig, axes = plt.subplots(2, (n_features + 1) // 2, figsize=(14, 8))
+    axes = axes.flatten()
+    
+    for i, feat in enumerate(features):
+        axes[i].boxplot(df[feat].dropna())
+        axes[i].set_ylabel('Valore')
+    
+    # Nascondi assi vuoti
+    for j in range(len(features), len(axes)):
+        axes[j].axis('off')
+            
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        print(f"✅ Boxplot feature salvato in: {save_path}")
+    
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+# ------------------------------------------------------------------------------
+# 1.4 ANALISI VALORI MANCANTI (Zeri Fittizi)
+# ------------------------------------------------------------------------------
+
+def plot_missing_values(df: pd.DataFrame,
+                        columns: Optional[List[str]] = None,
+                        save_path: Optional[str] = None,
+                        show: bool = True) -> None:
+    """
+    Visualizza la percentuale di valori mancanti/zeri fittizi per colonna.
+    
+    SCOPO: Mostrare quali colonne hanno zeri che rappresentano dati mancanti.
+    Giustifica la strategia di imputazione.
+    
+    QUANDO USARE: Sul dataset RAW, PRIMA dell'imputazione.
+    
+    Args:
+        df: DataFrame originale
+        columns: Colonne da analizzare (default: colonne con zeri fittizi)
+        save_path: Se specificato, salva il grafico
+        show: Se True, mostra il grafico
+    """
+    if columns is None:
+        columns = ['rear_camera_mp', 'front_camera_mp', 'internal_memory', 
+                   'ram', 'battery', 'weight', 'screen_size']
+    
+    columns = [c for c in columns if c in df.columns]
+    
+    # Calcola % zeri per ogni colonna
+    zero_percentages = {}
+    for col in columns:
+        zero_count = (df[col] == 0).sum()
+        zero_percentages[col] = (zero_count / len(df)) * 100
+    
+    # Ordina per percentuale
+    sorted_cols = sorted(zero_percentages.items(), key=lambda x: x[1], reverse=True)
+    cols = [x[0] for x in sorted_cols]
+    percentages = [x[1] for x in sorted_cols]
+    
+    # Grafico
+    plt.figure(figsize=(10, 5))
+    colors = ['red' if p > 5 else 'orange' if p > 1 else 'green' for p in percentages]
+    bars = plt.barh(cols, percentages, color=colors, edgecolor='black')
+    
+    # Aggiungi etichette
+    for bar, pct in zip(bars, percentages):
+        plt.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2, 
+                 f'{pct:.1f}%', va='center', fontsize=9)
+    
+    plt.xlabel('% Valori = 0 (Zeri Fittizi)', fontsize=12)
+    plt.xlim(0, max(percentages) + 5 if percentages else 10)
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        print(f"✅ Grafico missing values salvato in: {save_path}")
+    
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
 # ==============================================================================
-# 2. DISTRIBUZIONE CLASSI TARGET
+# FASE 2: POST-PREPROCESSING (Dopo pulizia e feature engineering)
 # ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 2.1 DISTRIBUZIONE CLASSI (DOPO QCUT)
+# ------------------------------------------------------------------------------
 
 def plot_class_distribution(df: pd.DataFrame,
                             target_column: str = 'price_category',
                             save_path: Optional[str] = None,
                             show: bool = True) -> None:
     """
-    Visualizza la distribuzione delle classi target (fasce di prezzo).
+    Visualizza la distribuzione delle classi target DOPO l'applicazione di qcut.
     
-    Questo grafico dimostra che il dataset è BILANCIATO grazie all'uso di qcut.
-    Ogni classe dovrebbe avere circa lo stesso numero di elementi.
+    SCOPO: Dimostrare che le classi sono BILANCIATE grazie a qcut.
+    Ogni classe dovrebbe avere circa lo stesso numero di elementi (~25%).
+    
+    QUANDO USARE: DOPO feature engineering (dopo create_price_categories).
     
     Args:
         df: DataFrame con la colonna target
@@ -114,27 +286,26 @@ def plot_class_distribution(df: pd.DataFrame,
     """
     plt.figure(figsize=(8, 5))
     
-    # Grafico a barre con palette viridis
     order = ['Budget', 'Mid-Range', 'High-End', 'Premium']
-    sns.countplot(data=df, x=target_column, palette='viridis', order=order)
+    palette = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
     
-    # Etichette
-    plt.title('Distribuzione delle Fasce di Prezzo (Target)', fontsize=14)
-    plt.xlabel('Fascia di Prezzo', fontsize=12)
-    plt.ylabel('Numero di Dispositivi', fontsize=12)
+    ax = sns.countplot(data=df, x=target_column, palette=palette, order=order)
     
-    # Aggiungi etichette sopra le barre
-    ax = plt.gca()
+    # Aggiungi etichette con percentuali
+    total = len(df)
     for p in ax.patches:
-        ax.annotate(f'{int(p.get_height())}', 
+        count = int(p.get_height())
+        pct = count / total * 100
+        ax.annotate(f'{count}\n({pct:.1f}%)', 
                     (p.get_x() + p.get_width() / 2., p.get_height()),
                     ha='center', va='bottom', fontsize=10)
-    
+    plt.xlabel('Fascia di Prezzo', fontsize=12)
+    plt.ylabel('Numero di Dispositivi', fontsize=12)
     plt.tight_layout()
     
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        print(f"✅ Grafico distribuzione classi salvato in: {save_path}")
+        print(f"✅ Grafico classi salvato in: {save_path}")
     
     if show:
         plt.show()
@@ -142,62 +313,61 @@ def plot_class_distribution(df: pd.DataFrame,
         plt.close()
 
 
-# ==============================================================================
-# 3. HEATMAP CORRELAZIONE (Analisi Feature Ridondanti)
-# ==============================================================================
+# ------------------------------------------------------------------------------
+# 2.2 HEATMAP CORRELAZIONE
+# ------------------------------------------------------------------------------
 
 def plot_correlation_heatmap(X: pd.DataFrame,
-                              numeric_features: Optional[List[str]] = None,
-                              save_path: Optional[str] = None,
-                              show: bool = True) -> pd.DataFrame:
+                             numeric_features: Optional[List[str]] = None,
+                             threshold: float = 0.5,
+                             save_path: Optional[str] = None,
+                             show: bool = True) -> pd.DataFrame:
     """
-    Crea una heatmap delle correlazioni tra feature numeriche.
+    Visualizza heatmap delle correlazioni tra feature numeriche.
     
-    Questa analisi identifica feature RIDONDANTI (correlazione > 0.5).
-    Ad esempio, RAM e Internal Memory sono correlate perché telefoni con
+    SCOPO: Identificare feature RIDONDANTI (correlazione > 0.5).
+    Es: RAM e Internal Memory sono correlate perché telefoni con
     più storage tendono ad avere più RAM.
+    
+    QUANDO USARE: DOPO feature engineering, PRIMA del training.
     
     Args:
         X: DataFrame delle features
-        numeric_features: Lista di feature numeriche da analizzare. 
-                         Se None, usa le feature predefinite
+        numeric_features: Lista di feature numeriche da analizzare
+        threshold: Soglia per evidenziare correlazioni alte
         save_path: Se specificato, salva il grafico
         show: Se True, mostra il grafico
         
     Returns:
         Matrice di correlazione come DataFrame
     """
-    # Feature numeriche di default
     if numeric_features is None:
         numeric_features = [
             'screen_size', 'rear_camera_mp', 'front_camera_mp',
             'internal_memory', 'ram', 'battery', 'weight', 'days_used', 'model_age'
         ]
     
-    # Filtra solo le colonne presenti
     available_features = [f for f in numeric_features if f in X.columns]
-    
-    # Calcola la matrice di correlazione
     corr_matrix = X[available_features].corr()
     
-    # --- Creazione Heatmap ---
     plt.figure(figsize=(10, 8))
+    
     sns.heatmap(
         corr_matrix, 
-        annot=True,        # Mostra i valori nelle celle
-        fmt='.2f',         # Due decimali
-        cmap='coolwarm',   # Colori caldo-freddo
-        center=0,          # Centra la scala sul valore 0
-        square=True,       # Celle quadrate
-        linewidths=0.5     # Bordi tra le celle
+        annot=True,
+        fmt='.2f',
+        cmap='coolwarm',
+        center=0,
+        square=True,
+        linewidths=0.5,
+        vmin=-1, vmax=1,
+        cbar_kws={'label': 'Correlazione'}
     )
-    
-    plt.title('Matrice di Correlazione - Feature Numeriche', fontsize=14)
     plt.tight_layout()
     
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        print(f"✅ Heatmap correlazione salvata in: {save_path}")
+        print(f"✅ Heatmap salvata in: {save_path}")
     
     if show:
         plt.show()
@@ -211,16 +381,6 @@ def get_high_correlations(corr_matrix: pd.DataFrame,
                           threshold: float = 0.5) -> List[Tuple[str, str, float]]:
     """
     Estrae le coppie di feature con correlazione superiore alla soglia.
-    
-    Utile per identificare feature ridondanti che il modello potrebbe
-    "ignorare" durante il training.
-    
-    Args:
-        corr_matrix: Matrice di correlazione
-        threshold: Soglia minima (default: 0.5)
-        
-    Returns:
-        Lista di tuple (feature1, feature2, correlazione)
     """
     high_corr = []
     features = corr_matrix.columns.tolist()
@@ -231,12 +391,89 @@ def get_high_correlations(corr_matrix: pd.DataFrame,
             if abs(corr_val) > threshold:
                 high_corr.append((features[i], features[j], corr_val))
     
-    return high_corr
+    return sorted(high_corr, key=lambda x: abs(x[2]), reverse=True)
+
+
+def print_correlation_analysis(corr_matrix: pd.DataFrame, threshold: float = 0.5) -> None:
+    """Stampa report testuale delle correlazioni significative."""
+    print("\n" + "=" * 60)
+    print("      ANALISI DELLE CORRELAZIONI TRA FEATURE")
+    print("=" * 60)
+    
+    high_corr = get_high_correlations(corr_matrix, threshold)
+    
+    if high_corr:
+        print(f"\n📊 Correlazioni superiori a {threshold}:\n")
+        for feat1, feat2, corr in high_corr:
+            symbol = "🔴" if abs(corr) > 0.7 else "🟡"
+            print(f"   {symbol} {feat1} ↔ {feat2}: {corr:.2f}")
+        
+        print("\n📝 Interpretazione:")
+        print("   - Feature correlate potrebbero essere ridondanti")
+        print("   - Il modello gestisce automaticamente questa ridondanza")
+    else:
+        print(f"\n✅ Nessuna correlazione superiore a {threshold}")
+    
+    print("=" * 60)
 
 
 # ==============================================================================
-# 4. CONFUSION MATRIX (Analisi Errori del Modello)
+# FASE 3: POST-TRAINING (Valutazione Modello)
 # ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 3.1 CONFRONTO MODELLI
+# ------------------------------------------------------------------------------
+
+def plot_model_comparison(model_scores: dict,
+                          save_path: Optional[str] = None,
+                          show: bool = True) -> None:
+    """
+    Visualizza confronto tra le accuracy di diversi modelli.
+    
+    SCOPO: Mostrare quale modello performa meglio e giustificare la scelta.
+    
+    QUANDO USARE: DOPO il training di tutti i modelli.
+    
+    Args:
+        model_scores: Dizionario {nome_modello: accuracy}
+        save_path: Se specificato, salva il grafico
+        show: Se True, mostra il grafico
+    """
+    models = list(model_scores.keys())
+    scores = list(model_scores.values())
+    
+    best_idx = scores.index(max(scores))
+    colors = ['#4CAF50' if i == best_idx else '#2196F3' for i in range(len(scores))]
+    
+    plt.figure(figsize=(10, 5))
+    bars = plt.bar(models, scores, color=colors, edgecolor='black')
+    
+    for bar, score in zip(bars, scores):
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+                f'{score:.2%}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+    
+    plt.ylim(0, 1)
+    plt.axhline(y=0.25, color='red', linestyle='--', linewidth=1.5, 
+                label='Random Guess (25%)')
+    plt.xlabel('Modello', fontsize=12)
+    plt.ylabel('Accuracy', fontsize=12)
+    plt.legend()
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        print(f"✅ Confronto modelli salvato in: {save_path}")
+    
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+# ------------------------------------------------------------------------------
+# 3.2 CONFUSION MATRIX
+# ------------------------------------------------------------------------------
 
 def plot_confusion_matrix(y_true: pd.Series,
                           y_pred: np.ndarray,
@@ -246,14 +483,16 @@ def plot_confusion_matrix(y_true: pd.Series,
     """
     Visualizza la Confusion Matrix del modello.
     
-    La Confusion Matrix mostra DOVE il modello sbaglia:
+    SCOPO: Mostrare DOVE il modello sbaglia.
     - Diagonale: predizioni corrette
     - Fuori diagonale: errori (es. Mid-Range predetto come High-End)
+    
+    QUANDO USARE: DOPO la predizione sul test set.
     
     Args:
         y_true: Etichette vere (ground truth)
         y_pred: Etichette predette dal modello
-        labels: Ordine delle classi. Se None, usa ordine predefinito
+        labels: Ordine delle classi
         save_path: Se specificato, salva il grafico
         show: Se True, mostra il grafico
         
@@ -265,23 +504,20 @@ def plot_confusion_matrix(y_true: pd.Series,
     if labels is None:
         labels = ['Budget', 'Mid-Range', 'High-End', 'Premium']
     
-    # Calcola la confusion matrix
     cm = confusion_matrix(y_true, y_pred, labels=labels)
     
-    # --- Creazione Grafico ---
     plt.figure(figsize=(8, 6))
     sns.heatmap(
         cm, 
-        annot=True,           # Mostra i numeri
-        fmt='d',              # Formato intero
-        cmap='Blues',         # Palette blu
+        annot=True,
+        fmt='d',
+        cmap='Blues',
         xticklabels=labels,
         yticklabels=labels
     )
     
     plt.xlabel('Predizione del Modello', fontsize=12)
     plt.ylabel('Valore Reale', fontsize=12)
-    plt.title('Confusion Matrix - Analisi degli Errori', fontsize=14)
     plt.tight_layout()
     
     if save_path:
@@ -296,46 +532,45 @@ def plot_confusion_matrix(y_true: pd.Series,
     return cm
 
 
-# ==============================================================================
-# 5. FEATURE IMPORTANCE (Quali feature influenzano il prezzo?)
-# ==============================================================================
+# ------------------------------------------------------------------------------
+# 3.3 FEATURE IMPORTANCE
+# ------------------------------------------------------------------------------
 
 def plot_feature_importance(importance_df: pd.DataFrame,
-                             top_n: int = 10,
-                             save_path: Optional[str] = None,
-                             show: bool = True) -> None:
+                            top_n: int = 10,
+                            save_path: Optional[str] = None,
+                            show: bool = True) -> None:
     """
     Visualizza le feature più importanti per il modello.
     
-    Questo grafico spiega COSA guarda il modello per decidere il prezzo.
-    Es: Fotocamera > RAM indica che i megapixel contano più della memoria RAM.
+    SCOPO: Spiegare COSA guarda il modello per decidere il prezzo (XAI).
+    
+    QUANDO USARE: DOPO il training del modello finale.
     
     Args:
         importance_df: DataFrame con colonne 'Feature' e 'Importance'
-        top_n: Numero di feature da mostrare (default: 10)
+        top_n: Numero di feature da mostrare
         save_path: Se specificato, salva il grafico
         show: Se True, mostra il grafico
     """
-    # Prendi le top N feature
     top_features = importance_df.head(top_n)
     
-    # --- Creazione Grafico ---
     plt.figure(figsize=(10, 6))
+    colors = plt.cm.magma(np.linspace(0.2, 0.8, len(top_features)))
+    
     sns.barplot(
         x='Importance', 
         y='Feature', 
         data=top_features, 
-        palette='magma'
+        palette=colors
     )
-    
-    plt.title(f'Top {top_n} Feature che Influenzano il Prezzo', fontsize=14)
-    plt.xlabel('Importanza (0-1)', fontsize=12)
+    plt.xlabel('Importanza', fontsize=12)
     plt.ylabel('Feature', fontsize=12)
     plt.tight_layout()
     
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        print(f"✅ Grafico Feature Importance salvato in: {save_path}")
+        print(f"✅ Feature Importance salvata in: {save_path}")
     
     if show:
         plt.show()
@@ -343,49 +578,139 @@ def plot_feature_importance(importance_df: pd.DataFrame,
         plt.close()
 
 
-# ==============================================================================
-# 6. CONFRONTO MODELLI (Grafico a Barre delle Accuracy)
-# ==============================================================================
+# ------------------------------------------------------------------------------
+# 3.4 CONFUSION MATRIX MULTIPLA (una per ogni modello)
+# ------------------------------------------------------------------------------
 
-def plot_model_comparison(model_scores: dict,
-                          save_path: Optional[str] = None,
-                          show: bool = True) -> None:
+def plot_all_confusion_matrices(models_predictions: dict,
+                                 y_true: pd.Series,
+                                 labels: Optional[List[str]] = None,
+                                 save_path: Optional[str] = None,
+                                 show: bool = True) -> None:
     """
-    Visualizza un confronto tra le accuracy di diversi modelli.
+    Crea una griglia di Confusion Matrix, una per ogni modello.
+    
+    SCOPO: Confrontare visivamente dove ogni modello sbaglia.
     
     Args:
-        model_scores: Dizionario {nome_modello: accuracy}
-                     Es: {'Logistic Regression': 0.65, 'Random Forest': 0.62}
+        models_predictions: Dizionario {nome_modello: y_pred}
+        y_true: Etichette vere
+        labels: Ordine delle classi
         save_path: Se specificato, salva il grafico
         show: Se True, mostra il grafico
     """
-    models = list(model_scores.keys())
-    scores = list(model_scores.values())
+    from sklearn.metrics import confusion_matrix
     
-    # Identifica il miglior modello
-    best_idx = scores.index(max(scores))
-    colors = ['#4CAF50' if i == best_idx else '#2196F3' for i in range(len(scores))]
+    if labels is None:
+        labels = ['Budget', 'Mid-Range', 'High-End', 'Premium']
     
-    # --- Creazione Grafico ---
-    plt.figure(figsize=(10, 5))
-    bars = plt.bar(models, scores, color=colors, edgecolor='black')
+    n_models = len(models_predictions)
+    cols = 2
+    rows = (n_models + 1) // 2
     
-    # Aggiungi etichette sopra le barre
-    for bar, score in zip(bars, scores):
-        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
-                f'{score:.2%}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+    fig, axes = plt.subplots(rows, cols, figsize=(12, 5 * rows))
+    axes = axes.flatten() if n_models > 1 else [axes]
     
-    plt.ylim(0, 1)
-    plt.title('Confronto Accuracy tra Modelli', fontsize=14)
-    plt.xlabel('Modello', fontsize=12)
-    plt.ylabel('Accuracy', fontsize=12)
-    plt.axhline(y=0.25, color='red', linestyle='--', label='Random Guess (25%)')
-    plt.legend()
+    for idx, (model_name, y_pred) in enumerate(models_predictions.items()):
+        cm = confusion_matrix(y_true, y_pred, labels=labels)
+        
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt='d',
+            cmap='Blues',
+            xticklabels=labels,
+            yticklabels=labels,
+            ax=axes[idx]
+        )
+        axes[idx].set_xlabel('Predizione')
+        axes[idx].set_ylabel('Valore Reale')
+    
+    # Nascondi assi vuoti
+    for j in range(len(models_predictions), len(axes)):
+        axes[j].axis('off')
     plt.tight_layout()
     
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        print(f"✅ Grafico confronto modelli salvato in: {save_path}")
+        print(f"✅ Confusion Matrix multipla salvata in: {save_path}")
+    
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+# ------------------------------------------------------------------------------
+# 3.5 CONFRONTO METRICHE (Accuracy, Precision, Recall, F1)
+# ------------------------------------------------------------------------------
+
+def plot_metrics_comparison(models_metrics: dict,
+                            save_path: Optional[str] = None,
+                            show: bool = True) -> None:
+    """
+    Confronta le metriche di valutazione per tutti i modelli.
+    
+    SCOPO: Mostrare non solo l'accuracy, ma anche precision, recall e F1
+    per ogni modello. Permette un confronto più completo.
+    
+    Args:
+        models_metrics: Dizionario {nome_modello: {'accuracy': x, 'precision': x, 'recall': x, 'f1': x}}
+        save_path: Se specificato, salva il grafico
+        show: Se True, mostra il grafico
+    
+    Esempio:
+        models_metrics = {
+            'Logistic Regression': {'accuracy': 0.65, 'precision': 0.64, 'recall': 0.65, 'f1': 0.64},
+            'Random Forest': {'accuracy': 0.62, 'precision': 0.61, 'recall': 0.62, 'f1': 0.61}
+        }
+    """
+    import pandas as pd
+    
+    # Prepara dati per il grafico
+    model_names = list(models_metrics.keys())
+    metrics = ['accuracy', 'precision', 'recall', 'f1']
+    
+    # Crea DataFrame per seaborn
+    data = []
+    for model_name, metric_values in models_metrics.items():
+        for metric in metrics:
+            data.append({
+                'Modello': model_name,
+                'Metrica': metric.capitalize(),
+                'Valore': metric_values.get(metric, 0)
+            })
+    
+    df_plot = pd.DataFrame(data)
+    
+    # Grafico a barre raggruppate
+    plt.figure(figsize=(12, 6))
+    
+    x = np.arange(len(model_names))
+    width = 0.2
+    
+    colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
+    
+    for i, metric in enumerate(metrics):
+        values = [models_metrics[m].get(metric, 0) for m in model_names]
+        bars = plt.bar(x + i * width, values, width, label=metric.capitalize(), color=colors[i])
+        
+        # Aggiungi etichette sopra le barre
+        for bar, val in zip(bars, values):
+            plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=8)
+    
+    plt.xlabel('Modello', fontsize=12)
+    plt.ylabel('Score', fontsize=12)
+    plt.xticks(x + width * 1.5, model_names, rotation=15, ha='right')
+    plt.ylim(0, 1)
+    plt.legend(loc='lower right')
+    plt.axhline(y=0.25, color='red', linestyle='--', linewidth=1, alpha=0.5, label='Random (25%)')
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        print(f"✅ Confronto metriche salvato in: {save_path}")
     
     if show:
         plt.show()
@@ -394,36 +719,36 @@ def plot_model_comparison(model_scores: dict,
 
 
 # ==============================================================================
-# 7. REPORT TESTUALE DELLE ANALISI
+# RIEPILOGO FUNZIONI PER NOTEBOOK
 # ==============================================================================
 
-def print_correlation_analysis(corr_matrix: pd.DataFrame, threshold: float = 0.5) -> None:
-    """
-    Stampa un report testuale delle correlazioni significative.
+"""
+📋 ORDINE DA USARE NEL NOTEBOOK:
+
+FASE 1 - DATA UNDERSTANDING (dataset raw):
+    from analytics import plot_price_distribution, plot_outlier_analysis, plot_feature_boxplots, plot_missing_values
     
-    Utile per la documentazione e la presentazione al professore.
+    df_raw = pd.read_csv('data/used_device_data.csv')
     
-    Args:
-        corr_matrix: Matrice di correlazione
-        threshold: Soglia per considerare una correlazione "alta"
-    """
-    print("\n" + "=" * 60)
-    print("      ANALISI DELLE CORRELAZIONI TRA FEATURE")
-    print("=" * 60)
+    plot_price_distribution(df_raw)       # Mostra sbilanciamento prezzi
+    plot_missing_values(df_raw)           # Mostra zeri fittizi
+    plot_feature_boxplots(df_raw)         # Distribuzione feature
+    plot_outlier_analysis(df_raw)         # Identifica tablet
     
-    high_corr = get_high_correlations(corr_matrix, threshold)
+FASE 2 - POST-PREPROCESSING:
+    from preprocessing import clean_dataset
+    from feature_engineering import engineer_features
     
-    if high_corr:
-        print(f"\n📊 Correlazioni superiori a {threshold}:\n")
-        for feat1, feat2, corr in sorted(high_corr, key=lambda x: abs(x[2]), reverse=True):
-            symbol = "🔴" if corr > 0.7 else "🟡"
-            print(f"   {symbol} {feat1} ↔ {feat2}: {corr:.2f}")
-        
-        print("\n📝 Interpretazione:")
-        print("   - Feature altamente correlate possono essere ridondanti")
-        print("   - Il modello Random Forest gestisce automaticamente questa ridondanza")
-        print("   - Spiega perché alcune feature hanno bassa Feature Importance")
-    else:
-        print(f"\n✅ Nessuna correlazione superiore a {threshold}")
+    df_clean = clean_dataset('data/used_device_data.csv')
+    df_eng = engineer_features(df_clean)
     
-    print("=" * 60)
+    plot_class_distribution(df_eng)       # Classi bilanciate
+    plot_correlation_heatmap(X)            # Correlazioni
+    
+FASE 3 - POST-TRAINING:
+    from training import train_logistic_regression, evaluate_model
+    
+    plot_model_comparison({'LR': 0.65, 'RF': 0.62, 'GB': 0.63})
+    plot_confusion_matrix(y_test, y_pred)
+    plot_feature_importance(importance_df)
+"""

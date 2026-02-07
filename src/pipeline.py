@@ -27,7 +27,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import DATASET_PATH, MODEL_PATH, SCALER_PATH, FEATURES_PATH, PROCESSED_DATASET_PATH
+from config import DATASET_PATH, MODEL_PATH, SCALER_PATH, FEATURES_PATH, PROCESSED_DATASET_PATH, ANALYTICS_DIR
+import pandas as pd
 from preprocessing import clean_dataset
 from feature_engineering import engineer_features, prepare_features
 from training import (
@@ -42,11 +43,17 @@ from training import (
     save_artifacts
 )
 from analytics import (
-    plot_correlation_heatmap,
+    plot_price_distribution,
+    plot_outlier_analysis,
+    plot_feature_boxplots,
+    plot_missing_values,
     plot_class_distribution,
+    plot_correlation_heatmap,
     plot_confusion_matrix,
     plot_feature_importance,
     plot_model_comparison,
+    plot_all_confusion_matrices,
+    plot_metrics_comparison,
     print_correlation_analysis
 )
 
@@ -72,9 +79,18 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         print("  STEP 1: PREPROCESSING")
         print("=" * 60)
     
-    processed_path = PROCESSED_DATASET_PATH if save_processed else None
-    df = clean_dataset(data_path, verbose=verbose, save_path=processed_path)
+    df_raw = pd.read_csv(data_path)  # Dataset originale per grafici Fase 1
+    df = clean_dataset(data_path, verbose=verbose)
     results['rows_after_cleaning'] = len(df)
+    
+    # --- GRAFICI FASE 1: Data Understanding (su dati RAW) ---
+    if verbose:
+        print("\n📊 Generazione grafici Fase 1 (Data Understanding)...")
+    
+    plot_price_distribution(df_raw, save_path=os.path.join(ANALYTICS_DIR, '1_price_distribution.png'), show=show_plots)
+    plot_missing_values(df_raw, save_path=os.path.join(ANALYTICS_DIR, '2_missing_values.png'), show=show_plots)
+    plot_feature_boxplots(df_raw, save_path=os.path.join(ANALYTICS_DIR, '3_feature_boxplots.png'), show=show_plots)
+    plot_outlier_analysis(df_raw, save_path=os.path.join(ANALYTICS_DIR, '4_outlier_analysis.png'), show=show_plots)
     
     # ==========================================================================
     # STEP 2: FEATURE ENGINEERING
@@ -88,6 +104,12 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
     X, y = prepare_features(df_engineered)
     results['n_features'] = X.shape[1]
     
+    # Salva il dataset processato (con price_category, model_age, encoding)
+    if save_processed:
+        df_engineered.to_csv(PROCESSED_DATASET_PATH, index=False)
+        if verbose:
+            print(f"\n💾 Dataset processato salvato: {PROCESSED_DATASET_PATH}")
+    
     # ==========================================================================
     # STEP 3: EDA (Analisi Esplorativa)
     # ==========================================================================
@@ -96,7 +118,14 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         print("  STEP 3: EDA (Analisi Correlazione)")
         print("=" * 60)
     
-    corr_matrix = plot_correlation_heatmap(X, save_path=None, show=show_plots)
+    # --- GRAFICI FASE 2: Post-Preprocessing ---
+    if verbose:
+        print("\n📊 Generazione grafici Fase 2 (Post-Preprocessing)...")
+    
+    plot_class_distribution(df_engineered, save_path=os.path.join(ANALYTICS_DIR, '5_class_distribution.png'), show=show_plots)
+    
+    corr_save_path = os.path.join(ANALYTICS_DIR, '6_correlation_heatmap.png')
+    corr_matrix = plot_correlation_heatmap(X, save_path=corr_save_path, show=show_plots)
     if verbose:
         print_correlation_analysis(corr_matrix, threshold=0.5)
     results['correlation_matrix'] = corr_matrix
@@ -218,8 +247,47 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
     if verbose:
         print(f"\n{final_metrics['classification_report']}")
     
-    if show_plots:
-        plot_confusion_matrix(y_test, final_metrics['predictions'])
+    # --- GRAFICI FASE 3: Post-Training ---
+    if verbose:
+        print("\n📊 Generazione grafici Fase 3 (Post-Training)...")
+    
+    # Model Comparison (solo accuracy)
+    model_scores = {
+        'Logistic Regression': log_metrics['accuracy'],
+        'Random Forest': rf_metrics['accuracy'],
+        'RF Tuned': tuned_rf_metrics['accuracy'],
+        'Gradient Boosting': gb_metrics['accuracy']
+    }
+    plot_model_comparison(model_scores, save_path=os.path.join(ANALYTICS_DIR, '7_model_comparison.png'), show=show_plots)
+    
+    # Confusion Matrix per ogni modello
+    from sklearn.metrics import precision_score, recall_score, f1_score
+    
+    all_predictions = {
+        'Logistic Regression': log_metrics['predictions'],
+        'Random Forest': rf_metrics['predictions'],
+        'RF Tuned': tuned_rf_metrics['predictions'],
+        'Gradient Boosting': gb_metrics['predictions']
+    }
+    plot_all_confusion_matrices(all_predictions, y_test, save_path=os.path.join(ANALYTICS_DIR, '8_all_confusion_matrices.png'), show=show_plots)
+    
+    # Confronto tutte le metriche
+    def calc_metrics(metrics_dict):
+        y_pred = metrics_dict['predictions']
+        return {
+            'accuracy': metrics_dict['accuracy'],
+            'precision': precision_score(y_test, y_pred, average='weighted', zero_division=0),
+            'recall': recall_score(y_test, y_pred, average='weighted', zero_division=0),
+            'f1': f1_score(y_test, y_pred, average='weighted', zero_division=0)
+        }
+    
+    all_metrics = {
+        'Logistic Regression': calc_metrics(log_metrics),
+        'Random Forest': calc_metrics(rf_metrics),
+        'RF Tuned': calc_metrics(tuned_rf_metrics),
+        'Gradient Boosting': calc_metrics(gb_metrics)
+    }
+    plot_metrics_comparison(all_metrics, save_path=os.path.join(ANALYTICS_DIR, '9_metrics_comparison.png'), show=show_plots)
     
     # Feature Importance (solo per modelli tree-based)
     if hasattr(best_model, 'feature_importances_'):
@@ -228,8 +296,7 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         if verbose:
             print("\n🔝 TOP 10 FEATURE:")
             print(importance.head(10).to_string(index=False))
-        if show_plots:
-            plot_feature_importance(importance)
+        plot_feature_importance(importance, save_path=os.path.join(ANALYTICS_DIR, '10_feature_importance.png'), show=show_plots)
     else:
         # Per Logistic Regression usiamo i coefficienti
         if verbose:
@@ -238,6 +305,7 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         results['top_features'] = coef_importance.head(10).to_dict('records')
         if verbose:
             print(coef_importance.head(10).to_string(index=False))
+        plot_feature_importance(coef_importance, save_path=os.path.join(ANALYTICS_DIR, '10_feature_importance.png'), show=show_plots)
     
     # ==========================================================================
     # STEP 8: SALVATAGGIO

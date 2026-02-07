@@ -40,6 +40,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, 'model')   # Artefatti salvati (modello, scaler)
 DATA_DIR = os.path.join(BASE_DIR, 'data')     # Dataset CSV
 
+# Directory per i grafici
+ANALYTICS_DIR = os.path.join(BASE_DIR, 'analytics')
+os.makedirs(ANALYTICS_DIR, exist_ok=True)
+
 # --- Path specifici dei file ---
 
 # Modello addestrato (Logistic Regression o modello migliore)
