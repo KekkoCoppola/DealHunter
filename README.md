@@ -157,7 +157,6 @@ Non servono modelli complessi per catturare queste relazioni.
 |--------|-------------|
 | **Data Drift** | Dataset fino al 2020. Dispositivi recenti valutati con standard 2020 |
 | **Hardware Only** | Non considera condizioni estetiche (graffi, usura) |
-| **Mercato Italiano** | Fasce di prezzo calibrate sul mercato italiano |
 
 ---
 
