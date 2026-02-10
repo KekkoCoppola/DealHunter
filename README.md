@@ -102,15 +102,15 @@ DealHunter/
 ├── data/
 │   ├── used_device_data.csv                 # Dataset originale
 │   └── used_device_data_processed.csv       # Dataset processato
-├── model/
-│   ├── logistic_regression_model.pkl        # Modello addestrato
-│   ├── scaler.pkl                           # StandardScaler
-│   └── feature_names.pkl                    # Lista feature
 ├── docs/
 │   ├── DealHunter.pptx                      # Presentazione Powerpoint progetto
 │   ├── DealHunterPresentazione.pdf          # Presentazione Pdf Progetto
 │   ├── DealHunter__Report_di_progetto.pdf   # Report Progetto
 │   └── Links.txt                            # Link utili
+├── model/
+│   ├── logistic_regression_model.pkl        # Modello addestrato
+│   ├── scaler.pkl                           # StandardScaler
+│   └── feature_names.pkl                    # Lista feature
 ├── src/
 │   ├── config.py                            # Configurazione
 │   ├── preprocessing.py                     # Pulizia dati
