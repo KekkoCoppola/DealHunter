@@ -96,26 +96,32 @@ L'app sarà disponibile su: `http://localhost:8501`
 
 ```
 DealHunter/
+├── analytics/
+│   ├── graphics.png                         # Grafici di analisi
+│   ├── ...           
 ├── data/
-│   ├── used_device_data.csv           # Dataset originale
-│   └── used_device_data_processed.csv # Dataset processato
+│   ├── used_device_data.csv                 # Dataset originale
+│   └── used_device_data_processed.csv       # Dataset processato
 ├── model/
-│   ├── logistic_regression_model.pkl  # Modello addestrato
-│   ├── scaler.pkl                     # StandardScaler
-│   └── feature_names.pkl              # Lista feature
-├── notebooks/
-│   └── DealHunter.ipynb               # Analisi esplorativa
+│   ├── logistic_regression_model.pkl        # Modello addestrato
+│   ├── scaler.pkl                           # StandardScaler
+│   └── feature_names.pkl                    # Lista feature
+├── docs/
+│   ├── DealHunter.pptx                      # Presentazione Powerpoint progetto
+│   ├── DealHunterPresentazione.pdf          # Presentazione Pdf Progetto
+│   ├── DealHunter__Report_di_progetto.pdf   # Report Progetto
+│   └── Links.txt                            # Link utili
 ├── src/
-│   ├── config.py                      # Configurazione
-│   ├── preprocessing.py               # Pulizia dati
-│   ├── feature_engineering.py         # Trasformazioni
-│   ├── training.py                    # Addestramento modelli
-│   ├── analytics.py                   # Grafici e analisi
-│   ├── pipeline.py                    # Pipeline completa
-│   ├── predictor.py                   # Classe predizioni
-│   └── app.py                         # Interfaccia Streamlit
+│   ├── config.py                            # Configurazione
+│   ├── preprocessing.py                     # Pulizia dati
+│   ├── feature_engineering.py               # Trasformazioni
+│   ├── training.py                          # Addestramento modelli
+│   ├── analytics.py                         # Grafici e analisi
+│   ├── pipeline.py                          # Pipeline completa
+│   ├── predictor.py                         # Classe predizioni
+│   └── app.py                               # Interfaccia Streamlit
 ├── README.md
-└── requirements.txt
+└── requirements.txt                         # Librerie python Progetto
 ```
 
 ---
