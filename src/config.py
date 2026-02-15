@@ -57,6 +57,10 @@ SCALER_PATH = os.path.join(MODEL_DIR, 'scaler.pkl')
 # Garantisce che i nuovi dati abbiano le colonne nell'ordine corretto
 FEATURES_PATH = os.path.join(MODEL_DIR, 'feature_names.pkl')
 
+# Bordi dei bin calcolati con qcut sul training set
+# Usati per discretizzare nuovi dati senza data leakage
+BINS_PATH = os.path.join(MODEL_DIR, 'target_bins.pkl')
+
 # Dataset originale (grezzo)
 DATASET_PATH = os.path.join(DATA_DIR, 'used_device_data.csv')
 
@@ -108,9 +112,10 @@ CATEGORICAL_COLUMNS = [
 # --- Colonne da rimuovere dopo il preprocessing ---
 COLUMNS_TO_DROP = [
     'release_year',           # Sostituito da 'model_age'
-    'normalized_used_price',  # Sostituito da 'price_category' (target)
     'normalized_new_price'    # RIMOSSO per evitare DATA LEAKAGE!
                               # Il prezzo nuovo è correlato all'usato
+    # NOTA: normalized_used_price NON è qui perché serve come target
+    # numerico fino allo split. Viene separata in prepare_features().
 ]
 
 

@@ -9,10 +9,10 @@ la creazione e trasformazione delle feature per renderle adatte al training.
 
 FUNZIONALITÀ PRINCIPALI:
 
-1. CREAZIONE TARGET (price_category):
-   - Trasforma il prezzo numerico continuo in 4 CLASSI DISCRETE
-   - Usa pd.qcut per garantire un dataset BILANCIATO
-   - Classi: Budget, Mid-Range, High-End, Premium
+1. DISCRETIZZAZIONE TARGET (price_category) - PATTERN FIT/TRANSFORM:
+   - fit_price_categories(): calcola i bin con pd.qcut SOLO su y_train
+   - transform_price_categories(): applica pd.cut con i bin del train su y_test
+   - Questo PREVIENE il Data Leakage: i quantili del test non influenzano i bin
 
 2. CREAZIONE MODEL_AGE:
    - Trasforma 'release_year' in 'model_age' (età del dispositivo)
@@ -35,18 +35,20 @@ PERCHÉ QCUT E NON CUT:
    cut([0.1, 0.2, 0.3, 0.4, 10], 4) → [0.1-0.2:3items], [0.2-0.3:1item], ...
    qcut([0.1, 0.2, 0.3, 0.4, 10], 4) → ogni classe ha ~1-2 items
 
-USO:
+FLUSSO CORRETTO (SENZA DATA LEAKAGE):
     from feature_engineering import engineer_features, prepare_features
+    from feature_engineering import fit_price_categories, transform_price_categories
     
-    # Applica tutte le trasformazioni
-    df = engineer_features(df)
-    
-    # Separa features e target
-    X, y = prepare_features(df)
+    df = engineer_features(df)       # Feature engineering (SENZA target)
+    X, y_price = prepare_features(df) # y_price è numerico
+    X_train, X_test, y_train_price, y_test_price = split(...)
+    y_train, bins = fit_price_categories(y_train_price)     # bin da SOLO train
+    y_test = transform_price_categories(y_test_price, bins)  # applica su test
 
 ================================================================================
 """
 
+import numpy as np
 import pandas as pd
 from typing import Tuple, List, Optional
 
@@ -59,60 +61,95 @@ from config import (
 
 
 # ==============================================================================
-# STEP 1: CREAZIONE CATEGORIE DI PREZZO (TARGET)
+# STEP 1: DISCRETIZZAZIONE TARGET (PATTERN FIT/TRANSFORM)
 # ==============================================================================
 
-def create_price_categories(df: pd.DataFrame, 
-                            n_categories: int = 4,
-                            labels: Optional[List[str]] = None,
-                            verbose: bool = False) -> pd.DataFrame:
+def fit_price_categories(y_train: pd.Series,
+                         n_categories: int = 4,
+                         labels: Optional[List[str]] = None,
+                         verbose: bool = False) -> Tuple[pd.Series, np.ndarray]:
     """
-    Trasforma il prezzo normalizzato in categorie discrete usando QUANTILI.
+    Calcola i bin dei quantili SOLO su y_train e discretizza il target.
     
-    PROBLEMA:
-       Il prezzo è una variabile CONTINUA (es. 4.35, 7.82, 2.15).
-       Per un problema di CLASSIFICAZIONE, dobbiamo convertirlo in classi.
+    QUESTA È LA FUNZIONE "FIT":
+       Usa pd.qcut per calcolare i bordi dei bin dalla distribuzione
+       dei prezzi del SOLO training set. I bin vengono poi restituiti
+       per essere riutilizzati su test set e dati futuri.
     
-    SOLUZIONE - QCUT (Quantile Cut):
-       Dividiamo i dati in fasce con lo STESSO NUMERO di elementi.
-       Questo garantisce un dataset BILANCIATO fin dall'inizio.
-       
-       Risultato:
-       - Budget: ~800 dispositivi
-       - Mid-Range: ~800 dispositivi  
-       - High-End: ~800 dispositivi
-       - Premium: ~800 dispositivi
-    
-    ALTERNATIVA NON USATA - CUT:
-       cut() divide per intervalli di prezzo uguali, ma se i prezzi
-       sono distribuiti in modo non uniforme, le classi saranno sbilanciate.
+    PERCHÉ SOLO SU TRAIN:
+       Calcolare i quantili sull'intero dataset (train+test) causerebbe
+       DATA LEAKAGE: il modello "vedrebbe" la distribuzione dei prezzi
+       del test set durante il training.
     
     Args:
-        df: DataFrame con colonna 'normalized_used_price'
+        y_train: Series con i prezzi numerici del training set
         n_categories: Numero di fasce di prezzo (default: 4)
         labels: Etichette per le categorie. Se None, usa PRICE_CATEGORIES
-        verbose: Se True, stampa la distribuzione delle classi
+        verbose: Se True, stampa distribuzione e bordi dei bin
         
     Returns:
-        DataFrame con nuova colonna 'price_category'
+        Tuple (y_train_cat, bins) dove:
+        - y_train_cat: Series con le categorie (Budget, Mid-Range, ...)
+        - bins: np.ndarray con i bordi dei bin (per riuso su test)
     """
-    df = df.copy()
-    
     if labels is None:
         labels = PRICE_CATEGORIES
     
-    # Applica qcut per creare classi bilanciate
-    df['price_category'] = pd.qcut(
-        df['normalized_used_price'], 
-        q=n_categories, 
-        labels=labels
+    # qcut calcola i quantili e restituisce anche i bordi (retbins=True)
+    y_train_cat, bins = pd.qcut(
+        y_train,
+        q=n_categories,
+        labels=labels,
+        retbins=True
     )
     
-    if verbose:
-        print("\n📊 Distribuzione classi create con qcut:")
-        print(df['price_category'].value_counts())
+    # Estendiamo i bordi estremi a -inf/+inf per gestire valori fuori range nel test
+    bins[0] = -np.inf
+    bins[-1] = np.inf
     
-    return df
+    if verbose:
+        print("\n📊 Bin calcolati su TRAINING SET (no data leakage):")
+        print(f"   Bordi dei bin: {bins}")
+        print(f"   Distribuzione classi train:")
+        print(y_train_cat.value_counts().to_string())
+    
+    return y_train_cat, bins
+
+
+def transform_price_categories(y: pd.Series,
+                                bins: np.ndarray,
+                                labels: Optional[List[str]] = None,
+                                verbose: bool = False) -> pd.Series:
+    """
+    Applica i bin pre-calcolati dal train per discretizzare un qualsiasi set.
+    
+    QUESTA È LA FUNZIONE "TRANSFORM":
+       Usa pd.cut (NON qcut!) con i bordi calcolati da fit_price_categories.
+       In questo modo il test set viene trattato come dati futuri "invisibili".
+    
+    DIFFERENZA CUT vs QCUT:
+       - qcut: calcola i quantili DAI DATI → data leakage se usato su test
+       - cut: usa bordi FISSI pre-definiti → nessun leakage
+    
+    Args:
+        y: Series con i prezzi numerici (test set o nuovi dati)
+        bins: Bordi dei bin calcolati da fit_price_categories
+        labels: Etichette per le categorie. Se None, usa PRICE_CATEGORIES
+        verbose: Se True, stampa la distribuzione risultante
+        
+    Returns:
+        Series con le categorie assegnate
+    """
+    if labels is None:
+        labels = PRICE_CATEGORIES
+    
+    y_cat = pd.cut(y, bins=bins, labels=labels)
+    
+    if verbose:
+        print("\n📊 Distribuzione classi (transform con bin del train):")
+        print(y_cat.value_counts().to_string())
+    
+    return y_cat
 
 
 # ==============================================================================
@@ -250,6 +287,8 @@ def drop_unused_columns(df: pd.DataFrame,
         columns = COLUMNS_TO_DROP
     
     # Rimuovi solo le colonne che esistono
+    # NOTA: normalized_used_price NON viene rimossa qui perché serve
+    # come target numerico per lo split. Sarà separata in prepare_features().
     columns_to_drop = [col for col in columns if col in df.columns]
     
     if verbose and columns_to_drop:
@@ -264,21 +303,25 @@ def drop_unused_columns(df: pd.DataFrame,
 
 def prepare_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Separa il DataFrame in features (X) e target (y).
+    Separa il DataFrame in features (X) e target numerico (y_price).
+    
+    IMPORTANTE: Restituisce y come prezzo NUMERICO (normalized_used_price),
+    NON come categoria. La discretizzazione avviene DOPO lo split
+    tramite fit_price_categories / transform_price_categories.
     
     Questa è l'ultima operazione prima dello split train/test.
     
     Args:
-        df: DataFrame già processato con 'price_category'
+        df: DataFrame processato (con model_age, encoding, ecc.)
         
     Returns:
-        Tuple (X, y) dove:
+        Tuple (X, y_price) dove:
         - X: DataFrame con tutte le features (senza target)
-        - y: Series con il target (price_category)
+        - y_price: Series con il prezzo numerico (normalized_used_price)
     """
-    X = df.drop(columns=['price_category'])
-    y = df['price_category']
-    return X, y
+    X = df.drop(columns=['normalized_used_price'])
+    y_price = df['normalized_used_price']
+    return X, y_price
 
 
 # ==============================================================================
@@ -292,10 +335,13 @@ def engineer_features(df: pd.DataFrame,
     Pipeline completa di feature engineering.
     
     Esegue in sequenza tutti gli step di trasformazione:
-    1. Creazione categorie di prezzo (target bilanciato)
-    2. Creazione model_age (trasformazione anno → età)
-    3. Rimozione colonne rischiose (data leakage prevention)
-    4. One-Hot Encoding (categoriche → numeriche)
+    1. Creazione model_age (trasformazione anno → età)
+    2. Rimozione colonne rischiose (data leakage prevention)
+    3. One-Hot Encoding (categoriche → numeriche)
+    
+    NOTA: La discretizzazione del target (price_category) NON avviene qui.
+    Viene eseguita DOPO lo split train/test tramite fit_price_categories
+    e transform_price_categories, per evitare Data Leakage.
     
     Args:
         df: DataFrame pulito (output di clean_dataset)
@@ -303,23 +349,20 @@ def engineer_features(df: pd.DataFrame,
         verbose: Se True, stampa informazioni per ogni step
         
     Returns:
-        DataFrame pronto per lo split e il training
+        DataFrame pronto per lo split (contiene ancora normalized_used_price)
     """
     if verbose:
         print("\n" + "-" * 40)
         print("   FEATURE ENGINEERING")
         print("-" * 40)
     
-    # --- STEP 1: Creazione target (categorie di prezzo) ---
-    df = create_price_categories(df, verbose=verbose)
-    
-    # --- STEP 2: Trasformazione anno → età ---
+    # --- STEP 1: Trasformazione anno → età ---
     df = create_model_age(df, reference_year, verbose=verbose)
     
-    # --- STEP 3: Rimozione colonne inutili/rischiose ---
+    # --- STEP 2: Rimozione colonne inutili/rischiose ---
     df = drop_unused_columns(df, verbose=verbose)
     
-    # --- STEP 4: One-Hot Encoding ---
+    # --- STEP 3: One-Hot Encoding ---
     df = encode_categorical(df, verbose=verbose)
     
     if verbose:

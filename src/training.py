@@ -66,7 +66,8 @@ from config import (
     RF_PARAM_GRID,
     MODEL_PATH,
     SCALER_PATH,
-    FEATURES_PATH
+    FEATURES_PATH,
+    BINS_PATH
 )
 
 
@@ -77,7 +78,8 @@ from config import (
 def split_data(X: pd.DataFrame, 
                y: pd.Series, 
                test_size: float = 0.2,
-               random_state: int = RANDOM_STATE) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+               random_state: int = RANDOM_STATE,
+               stratify_labels: Optional[pd.Series] = None) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
     Divide i dati in training e test set con STRATIFICAZIONE.
     
@@ -85,10 +87,10 @@ def split_data(X: pd.DataFrame,
        - Training (80%): usato per addestrare il modello
        - Test (20%): usato per valutare le performance finali
        
-    STRATIFICAZIONE (stratify=y):
+    STRATIFICAZIONE:
        Mantiene la stessa proporzione di classi in train e test.
-       Se il dataset ha 25% Budget, 25% Mid-Range, ecc.,
-       anche train e test avranno le stesse proporzioni.
+       Se stratify_labels è fornito, usa quelle etichette per stratificare.
+       Altrimenti stratifica direttamente su y.
     
     RANDOM STATE:
        Seed fisso per riproducibilità. Con random_state=42,
@@ -99,15 +101,19 @@ def split_data(X: pd.DataFrame,
         y: Series del target
         test_size: Proporzione del test set (default: 20%)
         random_state: Seed per riproducibilità
+        stratify_labels: Etichette categoriche per la stratificazione.
+                         Se None, usa y direttamente.
         
     Returns:
         Tuple (X_train, X_test, y_train, y_test)
     """
+    strat = stratify_labels if stratify_labels is not None else y
+    
     return train_test_split(
         X, y, 
         test_size=test_size, 
         random_state=random_state, 
-        stratify=y  # Mantiene la distribuzione delle classi
+        stratify=strat
     )
 
 
@@ -471,11 +477,13 @@ def get_feature_importance(model: RandomForestClassifier,
 def save_artifacts(model, 
                    scaler: StandardScaler, 
                    feature_names: pd.Index,
+                   target_bins=None,
                    model_path: str = MODEL_PATH,
                    scaler_path: str = SCALER_PATH,
-                   features_path: str = FEATURES_PATH) -> None:
+                   features_path: str = FEATURES_PATH,
+                   bins_path: str = BINS_PATH) -> None:
     """
-    Salva modello, scaler e feature names su disco per uso in produzione.
+    Salva modello, scaler, feature names e target bins su disco.
     
     ARTEFATTI SALVATI:
     
@@ -490,17 +498,25 @@ def save_artifacts(model,
        Lista ordinata delle colonne. Garantisce che i nuovi dati
        abbiano le stesse colonne nello stesso ordine.
     
+    4. TARGET BINS (.pkl):
+       Bordi dei bin calcolati con qcut sul training set.
+       Usati per discretizzare nuovi dati senza data leakage.
+    
     Args:
         model: Modello addestrato
         scaler: StandardScaler configurato
         feature_names: Nomi delle colonne
+        target_bins: Bordi dei bin per il target (da fit_price_categories)
         model_path: Path per il modello
         scaler_path: Path per lo scaler
         features_path: Path per i nomi delle feature
+        bins_path: Path per i bordi dei bin
     """
     joblib.dump(model, model_path)
     joblib.dump(scaler, scaler_path)
     joblib.dump(feature_names, features_path)
+    if target_bins is not None:
+        joblib.dump(target_bins, bins_path)
 
 
 def load_artifacts(model_path: str = MODEL_PATH,

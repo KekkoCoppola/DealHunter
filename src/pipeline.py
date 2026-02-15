@@ -4,20 +4,21 @@
 pipeline.py - Pipeline Completa di Training per DealHunter
 ================================================================================
 
-FLUSSO DELLA PIPELINE (8 step):
+FLUSSO DELLA PIPELINE (9 step):
     1. PREPROCESSING: Carica dati, gestisce missing values, rimuove outlier
-    2. FEATURE ENGINEERING: Crea categorie prezzo, model_age, one-hot encoding
-    3. EDA: Analisi correlazione (identifica feature ridondanti)
-    4. SPLIT & SCALING: Divide train/test (80/20), applica StandardScaler
-    5. TRAINING: Confronta 3 modelli (LR, RF, GB)
-    6. TUNING: Ottimizza RF per verificare se può battere LR
-    7. VALUTAZIONE: Sceglie il modello migliore (tipicamente LR)
-    8. SALVATAGGIO: Salva il modello vincitore su disco
+    2. FEATURE ENGINEERING: Crea model_age, one-hot encoding (SENZA target)
+    3. PREPARE: Separa X (features) e y_price (target numerico)
+    4. SPLIT: Divide train/test (80/20) con stratificazione temporanea
+    5. DISCRETIZZAZIONE TARGET: fit su train (qcut), transform su test (cut)
+    6. EDA: Analisi correlazione (identifica feature ridondanti)
+    7. SCALING & TRAINING: StandardScaler + confronto 3 modelli
+    8. TUNING: Ottimizza RF per verificare se può battere LR
+    9. VALUTAZIONE E SALVATAGGIO: Sceglie il migliore e salva
 
-NOTA IMPORTANTE:
-    Logistic Regression tipicamente vince perché le relazioni nel dataset
-    sono prevalentemente LINEARI. Manteniamo il tuning RF per dimostrare
-    che il processo è stato rigoroso (Rasoio di Occam).
+NOTA IMPORTANTE SU DATA LEAKAGE:
+    La discretizzazione del target (price_category) avviene DOPO lo split.
+    I bin dei quantili sono calcolati SOLO sul training set (pd.qcut),
+    poi applicati al test set con pd.cut. Questo previene il data leakage.
 
 ================================================================================
 """
@@ -27,10 +28,15 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import DATASET_PATH, MODEL_PATH, SCALER_PATH, FEATURES_PATH, PROCESSED_DATASET_PATH, ANALYTICS_DIR
+from config import DATASET_PATH, MODEL_PATH, SCALER_PATH, FEATURES_PATH, BINS_PATH, PROCESSED_DATASET_PATH, ANALYTICS_DIR, PRICE_CATEGORIES
 import pandas as pd
 from preprocessing import clean_dataset
-from feature_engineering import engineer_features, prepare_features
+from feature_engineering import (
+    engineer_features,
+    prepare_features,
+    fit_price_categories,
+    transform_price_categories
+)
 from training import (
     split_data,
     scale_features,
@@ -68,6 +74,12 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
     
     Il modello finale salvato sarà quello con accuracy più alta.
     Tipicamente Logistic Regression vince perché le relazioni sono lineari.
+    
+    FLUSSO ANTI-LEAKAGE:
+    1. Preprocessing e feature engineering (senza discretizzare il target)
+    2. Split train/test (con stratificazione su bin temporanei)
+    3. Calcolo bin definitivi SOLO su y_train (qcut)
+    4. Applicazione bin su y_test (cut)
     """
     results = {}
     
@@ -93,7 +105,7 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
     plot_outlier_analysis(df_raw, save_path=os.path.join(ANALYTICS_DIR, '4_outlier_analysis.png'), show=show_plots)
     
     # ==========================================================================
-    # STEP 2: FEATURE ENGINEERING
+    # STEP 2: FEATURE ENGINEERING (senza discretizzazione target)
     # ==========================================================================
     if verbose:
         print("\n" + "=" * 60)
@@ -101,28 +113,64 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         print("=" * 60)
     
     df_engineered = engineer_features(df, verbose=verbose)
-    X, y = prepare_features(df_engineered)
+    X, y_price = prepare_features(df_engineered)
     results['n_features'] = X.shape[1]
     
-    # Salva il dataset processato (con price_category, model_age, encoding)
+    # Salva il dataset processato (con model_age, encoding, MA target numerico)
     if save_processed:
         df_engineered.to_csv(PROCESSED_DATASET_PATH, index=False)
         if verbose:
             print(f"\n💾 Dataset processato salvato: {PROCESSED_DATASET_PATH}")
     
     # ==========================================================================
-    # STEP 3: EDA (Analisi Esplorativa)
+    # STEP 3: SPLIT PREVENTIVO (PRIMA della discretizzazione target)
     # ==========================================================================
     if verbose:
         print("\n" + "=" * 60)
-        print("  STEP 3: EDA (Analisi Correlazione)")
+        print("  STEP 3: SPLIT TRAIN/TEST (prima di discretizzare il target)")
+        print("=" * 60)
+    
+    # Discretizzazione TEMPORANEA solo per stratificazione
+    # Serve a mantenere proporzioni bilanciate nello split,
+    # ma NON viene usata come target definitivo.
+    y_temp_strat = pd.qcut(y_price, q=4, labels=PRICE_CATEGORIES)
+    
+    X_train, X_test, y_train_price, y_test_price = split_data(
+        X, y_price, stratify_labels=y_temp_strat
+    )
+    
+    if verbose:
+        print(f"\n📚 Training: {len(X_train)} | Test: {len(X_test)}")
+    
+    # ==========================================================================
+    # STEP 4: DISCRETIZZAZIONE TARGET (fit su train, transform su test)
+    # ==========================================================================
+    if verbose:
+        print("\n" + "=" * 60)
+        print("  STEP 4: DISCRETIZZAZIONE TARGET (anti data leakage)")
+        print("=" * 60)
+    
+    # FIT: calcola i bin SOLO dal training set
+    y_train, bins = fit_price_categories(y_train_price, verbose=verbose)
+    
+    # TRANSFORM: applica i bin del train al test set
+    y_test = transform_price_categories(y_test_price, bins, verbose=verbose)
+    
+    # ==========================================================================
+    # STEP 5: EDA (Analisi Esplorativa)
+    # ==========================================================================
+    if verbose:
+        print("\n" + "=" * 60)
+        print("  STEP 5: EDA (Analisi Correlazione)")
         print("=" * 60)
     
     # --- GRAFICI FASE 2: Post-Preprocessing ---
     if verbose:
         print("\n📊 Generazione grafici Fase 2 (Post-Preprocessing)...")
     
-    plot_class_distribution(df_engineered, save_path=os.path.join(ANALYTICS_DIR, '5_class_distribution.png'), show=show_plots)
+    # Distribuzione classi (mostriamo la distribuzione sul TRAINING set)
+    train_class_df = pd.DataFrame({'price_category': y_train})
+    plot_class_distribution(train_class_df, save_path=os.path.join(ANALYTICS_DIR, '5_class_distribution.png'), show=show_plots)
     
     corr_save_path = os.path.join(ANALYTICS_DIR, '6_correlation_heatmap.png')
     corr_matrix = plot_correlation_heatmap(X, save_path=corr_save_path, show=show_plots)
@@ -131,25 +179,21 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
     results['correlation_matrix'] = corr_matrix
     
     # ==========================================================================
-    # STEP 4: SPLIT & SCALING
+    # STEP 6: SCALING
     # ==========================================================================
     if verbose:
         print("\n" + "=" * 60)
-        print("  STEP 4: SPLIT & SCALING")
+        print("  STEP 6: SCALING")
         print("=" * 60)
     
-    X_train, X_test, y_train, y_test = split_data(X, y)
     X_train_scaled, X_test_scaled, scaler = scale_features(X_train, X_test)
     
-    if verbose:
-        print(f"\n📚 Training: {len(X_train)} | Test: {len(X_test)}")
-    
     # ==========================================================================
-    # STEP 5: TRAINING - CONFRONTO 3 MODELLI
+    # STEP 7: TRAINING - CONFRONTO 3 MODELLI
     # ==========================================================================
     if verbose:
         print("\n" + "=" * 60)
-        print("  STEP 5: TRAINING - CONFRONTO MODELLI")
+        print("  STEP 7: TRAINING - CONFRONTO MODELLI")
         print("=" * 60)
     
     # Logistic Regression
@@ -185,12 +229,12 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         print("-" * 60)
     
     # ==========================================================================
-    # STEP 6: TUNING RF (per dimostrare metodologia)
+    # STEP 8: TUNING RF (per dimostrare metodologia)
     # Anche se LR vince, proviamo a ottimizzare RF per vedere se può migliorare
     # ==========================================================================
     if verbose:
         print("\n" + "=" * 60)
-        print("  STEP 6: TUNING RF (verifica metodologica)")
+        print("  STEP 8: TUNING RF (verifica metodologica)")
         print("=" * 60)
         print("⏳ Ottimizzazione RF con GridSearchCV...\n")
     
@@ -207,12 +251,11 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
         print(f"   Miglioramento: {(tuned_rf_metrics['accuracy'] - rf_metrics['accuracy'])*100:+.2f}%")
     
     # ==========================================================================
-    # STEP 7: SELEZIONE MODELLO FINALE
-    # Scegliamo il modello con accuracy più alta
+    # STEP 9: SELEZIONE MODELLO FINALE E SALVATAGGIO
     # ==========================================================================
     if verbose:
         print("\n" + "=" * 60)
-        print("  STEP 7: SELEZIONE MODELLO FINALE")
+        print("  STEP 9: SELEZIONE MODELLO FINALE")
         print("=" * 60)
     
     # Confronto finale (include RF ottimizzato)
@@ -307,21 +350,20 @@ def run_full_pipeline(data_path: str = DATASET_PATH,
             print(coef_importance.head(10).to_string(index=False))
         plot_feature_importance(coef_importance, save_path=os.path.join(ANALYTICS_DIR, '10_feature_importance.png'), show=show_plots)
     
-    # ==========================================================================
-    # STEP 8: SALVATAGGIO
-    # ==========================================================================
+    # Salvataggio artefatti
     if save_model:
         if verbose:
             print("\n" + "=" * 60)
-            print("  STEP 8: SALVATAGGIO")
+            print("  SALVATAGGIO ARTEFATTI")
             print("=" * 60)
         
-        save_artifacts(best_model, scaler, X.columns)
+        save_artifacts(best_model, scaler, X.columns, bins)
         
         if verbose:
             print(f"\n✅ Modello ({best_name}): {MODEL_PATH}")
             print(f"✅ Scaler: {SCALER_PATH}")
             print(f"✅ Features: {FEATURES_PATH}")
+            print(f"✅ Target bins: {BINS_PATH}")
     
     return results
 
@@ -376,4 +418,4 @@ if __name__ == "__main__":
     print("-" * 60)
     print(f"  🏆 VINCITORE: {results['best_model_name']} ({results['best_accuracy']:.2%})")
     print("=" * 60)
-    print("\n✅ Pipeline completata!\n")
+    print("\n✅ Pipeline completata (senza data leakage)!\n")
