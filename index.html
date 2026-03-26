@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DealHunter | Valuta il tuo Smartphone</title>
-    <meta name="description" content="DealHunter - Scopri se il prezzo del tuo smartphone usato è quello giusto grazie al Machine Learning.">
+    <meta name="description"
+        content="DealHunter - Scopri se il prezzo del tuo smartphone usato è quello giusto grazie al Machine Learning.">
+    <link rel="icon" type="image/svg+xml" href="src/img/MainLogo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1B6BB2;
+            --primary: #052746;
             --secondary: #EA7900;
-            --bg: #f8fafc;
+            --bg: #b2d4f7;
             --text: #1e293b;
             --glass: rgba(255, 255, 255, 0.8);
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -107,7 +110,8 @@
             color: #475569;
         }
 
-        select, input {
+        select,
+        input {
             padding: 0.75rem;
             border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
@@ -115,7 +119,8 @@
             transition: border-color 0.2s;
         }
 
-        select:focus, input:focus {
+        select:focus,
+        input:focus {
             outline: none;
             border-color: var(--primary);
             ring: 2px solid var(--primary);
@@ -164,8 +169,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .result-box {
@@ -176,13 +188,31 @@
             margin-bottom: 1.5rem;
         }
 
-        .result-Budget { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
-        .result-Mid-Range { background: linear-gradient(135deg, var(--primary) 0%, #1557a0 100%); }
-        .result-High-End { background: linear-gradient(135deg, var(--secondary) 0%, #d16d00 100%); }
-        .result-Premium { background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); }
+        .result-Budget {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
 
-        .result-box h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-        .result-box p { font-size: 1.4rem; font-weight: 600; }
+        .result-Mid-Range {
+            background: linear-gradient(135deg, var(--primary) 0%, #1557a0 100%);
+        }
+
+        .result-High-End {
+            background: linear-gradient(135deg, var(--secondary) 0%, #d16d00 100%);
+        }
+
+        .result-Premium {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+        }
+
+        .result-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-box p {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
 
         .metric-container {
             display: flex;
@@ -254,11 +284,13 @@
         }
     </style>
 </head>
+
 <body>
 
     <header>
         <div class="logo-container">
-            <img src="src/img/MainLogo.png" alt="DealHunter Logo" onerror="this.src='https://via.placeholder.com/300x100?text=DealHunter'">
+            <img src="src/img/MainLogo.png" alt="DealHunter Logo"
+                onerror="this.src='https://via.placeholder.com/300x100?text=DealHunter'">
         </div>
         <p>Valutazione smartphone basata su Machine Learning</p>
     </header>
@@ -338,7 +370,7 @@
 
         const CATEGORIES = ['Budget', 'Mid-Range', 'High-End', 'Premium'];
 
-        document.getElementById('predict-btn').addEventListener('click', function() {
+        document.getElementById('predict-btn').addEventListener('click', function () {
             const btn = this;
             btn.innerHTML = '⏳ Elaborazione...';
             btn.disabled = true;
@@ -363,7 +395,7 @@
             score += (ram * 10);
             score += (memory / 2);
             score += (year - 2010) * 5;
-            
+
             if (brand === 'Apple' || brand === 'Samsung') score += 50;
 
             let prediction = '';
@@ -433,7 +465,7 @@
         }
 
         function getIcon(cat) {
-            switch(cat) {
+            switch (cat) {
                 case 'Budget': return '💰';
                 case 'Mid-Range': return '⚖️';
                 case 'High-End': return '🚀';
@@ -443,4 +475,5 @@
         }
     </script>
 </body>
+
 </html>

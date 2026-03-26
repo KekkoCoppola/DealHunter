@@ -6,6 +6,7 @@
   <h3>Cerca la trasparenza nel mercato dell'usato</h3>
   
   <p align="center">
+    <a href="https://kekkocoppola.github.io/DealHunter/">🚀 Prova l'App</a> •
     <a href="#-descrizione">Descrizione</a> •
     <a href="#-come-funziona">Come Funziona</a> •
     <a href="#-installazione">Installazione</a> •
@@ -18,6 +19,7 @@
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
 ![ML](https://img.shields.io/badge/ML-Logistic%20Regression-green)
+[![GitHub Pages](https://img.shields.io/badge/Live-Demo-brightgreen?logo=github&logoColor=white)](https://kekkocoppola.github.io/DealHunter/)
 
 ---
 
@@ -41,6 +43,14 @@ L'obiettivo è contrastare l'**asimmetria informativa** tra venditore e acquiren
 - 💎 **Premium**: > 600€
 
 > Progetto sviluppato per il corso di **Machine Learning 2025/26**.
+
+---
+
+## 🚀 Demo Live
+
+Prova il modello direttamente nel tuo browser senza installare nulla:
+
+[**👉 Accedi alla Web App su GitHub Pages**](https://kekkocoppola.github.io/DealHunter/)
 
 ---
 
