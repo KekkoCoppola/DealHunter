@@ -25,10 +25,16 @@
 
 ## 👤 Autore
 
-<a href="https://github.com/KekkoCoppola">
-  <img src="https://github.com/KekkoCoppola.png" width="30" style="border-radius: 50%; vertical-align: middle;" />
-  <strong>Francesco Coppola</strong>
-</a>
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="https://github.com/KekkoCoppola">
+        <img src="https://github.com/KekkoCoppola.png" width="100px;" alt="Francesco Coppola" style="border-radius: 50%; border: 2px solid #5D5CDE;"/><br />
+        <sub><b>Francesco Coppola</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ---
 
