@@ -13,11 +13,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #052746;
+            --primary: #1B6BB2;
+            --primary-dark: #1557a0;
             --secondary: #EA7900;
-            --bg: #b2d4f7;
-            --text: #1e293b;
-            --glass: rgba(255, 255, 255, 0.8);
+            --secondary-dark: #d16d00;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
 
@@ -28,71 +32,71 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, #1557a0 100%);
-            padding: 2rem 1rem;
-            text-align: center;
-            color: white;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-        }
-
-        .logo-container {
-            margin-bottom: 1rem;
-        }
-
-        .logo-container img {
-            max-width: 300px;
-            width: 80%;
-            pointer-events: none;
-        }
-
+        /* Streamlit-like layout */
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 1.5rem 3rem;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-container img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            pointer-events: none;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            font-weight: 700;
         }
 
         .hero {
             text-align: center;
-            margin-bottom: 2.5rem;
-        }
-
-        .hero h1 {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 2rem;
         }
 
         .hero p {
-            color: #64748b;
+            color: var(--text-muted);
             font-size: 1.1rem;
         }
 
         .card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-            margin-bottom: 2rem;
+            background: var(--bg-card);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
         }
 
+        .card-header {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        /* Two columns for inputs */
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 640px) {
             .grid {
                 grid-template-columns: 1fr;
             }
@@ -101,131 +105,127 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         label {
             font-weight: 600;
-            font-size: 0.9rem;
-            color: #475569;
+            font-size: 0.875rem;
+            color: var(--text-main);
         }
 
-        select,
-        input {
-            padding: 0.75rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
+        .help-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
             font-size: 1rem;
-            transition: border-color 0.2s;
+            background: #fff;
+            transition: all 0.2s;
         }
 
-        select:focus,
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            ring: 2px solid var(--primary);
+            box-shadow: 0 0 0 2px rgba(27, 107, 178, 0.1);
         }
 
-        .toggle-group {
+        .connectivity-group {
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-container {
             display: flex;
-            gap: 2rem;
-            margin-top: 1rem;
+            gap: 1.5rem;
+            align-items: center;
         }
 
-        .toggle-item {
+        .checkbox-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            width: 1.1rem;
+            height: 1.1rem;
         }
 
         button#predict-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.8rem;
             background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 1rem;
-            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             margin-top: 1rem;
-            box-shadow: 0 4px 14px 0 rgba(27, 107, 178, 0.39);
         }
 
         button#predict-btn:hover {
             background-color: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(234, 121, 0, 0.4);
+            transform: translateY(-1px);
         }
 
-        button#predict-btn:active {
-            transform: translateY(0);
+        button#predict-btn:disabled {
+            background-color: var(--border);
+            cursor: not-allowed;
+            transform: none;
         }
 
+        /* Results Styling */
         #result-display {
-            display: none;
-            animation: fadeIn 0.5s ease-out;
+            margin-top: 2rem;
+            animation: fadeIn 0.4s ease-out;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .result-box {
-            padding: 2rem;
-            border-radius: 1rem;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
             text-align: center;
             color: white;
             margin-bottom: 1.5rem;
         }
 
-        .result-Budget {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        }
+        .result-Budget { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
+        .result-Mid-Range { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+        .result-High-End { background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); }
+        .result-Premium { background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); }
 
-        .result-Mid-Range {
-            background: linear-gradient(135deg, var(--primary) 0%, #1557a0 100%);
-        }
+        .result-box h2 { color: white; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .result-box p { font-size: 1.25rem; font-weight: 600; opacity: 0.9; }
 
-        .result-High-End {
-            background: linear-gradient(135deg, var(--secondary) 0%, #d16d00 100%);
-        }
-
-        .result-Premium {
-            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
-        }
-
-        .result-box h2 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-box p {
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-
-        .metric-container {
+        .metric-card {
             display: flex;
-            justify-content: center;
-            margin-bottom: 2rem;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            max-width: 200px;
+            margin: 0 auto 2rem;
         }
 
-        .metric {
-            text-align: center;
-            padding: 1rem 2rem;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: var(--shadow);
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
 
         .metric-value {
@@ -234,119 +234,167 @@
             color: var(--primary);
         }
 
-        .metric-label {
-            font-size: 0.8rem;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .chart-section h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
         }
 
-        .chart-container {
-            margin-top: 2rem;
-        }
-
-        .chart-bar {
-            height: 2rem;
-            background: #e2e8f0;
-            border-radius: 0.5rem;
+        .chart-item {
             margin-bottom: 1rem;
-            position: relative;
+        }
+
+        .chart-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .chart-bar-bg {
+            height: 0.75rem;
+            background: #e2e8f0;
+            border-radius: 1rem;
             overflow: hidden;
         }
 
-        .chart-fill {
+        .chart-bar-fill {
             height: 100%;
             background: var(--primary);
             transition: width 1s ease-in-out;
         }
 
-        .chart-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 0.25rem;
-            font-weight: 600;
-        }
-
         footer {
             text-align: center;
             padding: 2rem;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            border-top: 1px solid #e2e8f0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
         }
 
-        hr {
-            border: 0;
-            border-top: 1px solid var(--secondary);
+        .st-divider {
+            height: 1px;
+            background: var(--border);
             margin: 2rem 0;
-            opacity: 0.3;
+            position: relative;
+        }
+
+        .warning-banner {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
     </style>
+    </style>
 </head>
-
-<body>
 
     <header>
         <div class="logo-container">
             <img src="src/img/MainLogo.png" alt="DealHunter Logo"
                 onerror="this.src='https://via.placeholder.com/300x100?text=DealHunter'">
         </div>
-        <p>Valutazione smartphone basata su Machine Learning</p>
+        <p>Scopri se il prezzo del tuo smartphone è giusto!</p>
     </header>
 
     <div class="container">
-        <section class="hero">
-            <h1>📊 Analisi del Prezzo Giusto</h1>
-            <p>Inserisci le specifiche tecniche del tuo dispositivo per una stima immediata.</p>
-        </section>
+        <div class="st-divider"></div>
 
         <section class="card">
+            <h2 class="card-header">📋 Specifiche Tecniche</h2>
             <div class="grid">
-                <div class="form-group">
-                    <label for="brand">🏷️ Marca</label>
-                    <select id="brand">
-                        <option value="Samsung">Samsung</option>
-                        <option value="Apple">Apple</option>
-                        <option value="Huawei">Huawei</option>
-                        <option value="Xiaomi">Xiaomi</option>
-                        <option value="Oppo">Oppo</option>
-                        <option value="Others">Altro</option>
-                    </select>
+                <!-- Colonna 1 -->
+                <div class="column">
+                    <div class="form-group">
+                        <label for="brand">🏷️ Marca</label>
+                        <select id="brand">
+                            <option value="Samsung">Samsung</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Huawei">Huawei</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="LG">LG</option>
+                            <option value="Lenovo">Lenovo</option>
+                            <option value="Sony">Sony</option>
+                            <option value="Honor">Honor</option>
+                            <option value="Others">Altro</option>
+                        </select>
+                        <span class="help-text">Seleziona la marca del dispositivo</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="ram">💾 RAM (GB)</label>
+                        <input type="number" id="ram" value="4.0" step="0.5" min="0.5" max="24">
+                        <span class="help-text">Memoria RAM in GB</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="memory">📦 Memoria Interna (GB)</label>
+                        <input type="number" id="memory" value="64" step="8" min="8" max="1024">
+                        <span class="help-text">Spazio di archiviazione in GB</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="rear_cam">📸 Fotocamera Posteriore (MP)</label>
+                        <input type="number" id="rear_cam" value="12.0" step="1" min="1" max="200">
+                        <span class="help-text">Megapixel della fotocamera principale</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="front_cam">🤳 Fotocamera Anteriore (MP)</label>
+                        <input type="number" id="front_cam" value="8.0" step="1" min="1" max="50">
+                        <span class="help-text">Megapixel della fotocamera selfie</span>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="ram">💾 RAM (GB)</label>
-                    <input type="number" id="ram" value="4" step="0.5" min="0.5">
-                </div>
-                <div class="form-group">
-                    <label for="memory">📦 Memoria (GB)</label>
-                    <input type="number" id="memory" value="64" step="8">
-                </div>
-                <div class="form-group">
-                    <label for="year">📅 Anno di Uscita</label>
-                    <input type="number" id="year" value="2020" min="2010" max="2026">
-                </div>
-                <div class="form-group">
-                    <label for="rear_cam">📸 Fotocamera Post (MP)</label>
-                    <input type="number" id="rear_cam" value="12">
-                </div>
-                <div class="form-group">
-                    <label for="battery">🔋 Batteria (mAh)</label>
-                    <input type="number" id="battery" value="3000" step="100">
+
+                <!-- Colonna 2 -->
+                <div class="column">
+                    <div class="form-group">
+                        <label for="battery">🔋 Batteria (mAh)</label>
+                        <input type="number" id="battery" value="3000" step="100" min="500" max="10000">
+                        <span class="help-text">Capacità della batteria</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="screen">📐 Schermo (cm)</label>
+                        <input type="number" id="screen" value="15.0" step="0.5" min="5" max="25">
+                        <span class="help-text">Diagonale dello schermo in cm</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="weight">⚖️ Peso (g)</label>
+                        <input type="number" id="weight" value="160" step="5" min="50" max="500">
+                        <span class="help-text">Peso del dispositivo in grammi</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="year">📅 Anno di Uscita</label>
+                        <input type="number" id="year" value="2020" step="1" min="2010" max="2026">
+                        <span class="help-text">Anno di lancio del modello</span>
+                    </div>
+
+                    <div class="form-group connectivity-group" style="margin-top: 1.2rem;">
+                        <label>📶 Connettività</label>
+                        <div class="checkbox-container">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="4g" checked> 4G
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="5g"> 5G
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="toggle-group">
-                <div class="toggle-item">
-                    <input type="checkbox" id="4g" checked>
-                    <label for="4g">4G</label>
-                </div>
-                <div class="toggle-item">
-                    <input type="checkbox" id="5g">
-                    <label for="5g">5G</label>
-                </div>
-            </div>
-
+            <div class="st-divider"></div>
             <button id="predict-btn">🔮 Calcola Prezzo Giusto</button>
         </section>
 
@@ -355,112 +403,215 @@
         </div>
 
         <footer>
-            <p>DealHunter - Logistic Regression Model | Accuracy: ~65%</p>
-            <p>© 2026 Infrastruttura DealHunter</p>
+            <p>DealHunter - Machine Learning per la valutazione di smartphone usati</p>
+            <p style="color: var(--secondary); margin-top: 0.5rem; font-weight: 600;">Modello: Logistic Regression | Accuracy: ~65%</p>
+            <p style="margin-top: 1rem; opacity: 0.7;">© 2026 Infrastruttura DealHunter</p>
         </footer>
     </div>
 
     <script>
-        const PRICE_RANGES = {
-            'Budget': '< 150€',
-            'Mid-Range': '150€ - 300€',
-            'High-End': '300€ - 600€',
-            'Premium': '> 600€'
+        // ==============================================================================
+        // CONFIGURAZIONE MODELLO (Porting da Scikit-Learn)
+        // ==============================================================================
+        const MODEL_CONFIG = {
+            classes: ["Budget", "High-End", "Mid-Range", "Premium"],
+            intercept: [-1.0179539867701117, 0.9553489196545959, 1.0824195447480134, -1.0198144776324864],
+            coefficients: [
+                [-0.15360060951339596, -2.135199311747606, -2.370049954672602, -0.355755280088038, -0.3537713653543893, -0.5410528264113371, -0.8741726693048116, 0.002452963069748507, -0.8779149330377927, 0.3599648897485065, -0.28268996200475127, -0.5331549596970965, 0.2924576286042394, 0.01708078134540703, -0.5188221027208396, 0.22981871578965804, -0.04821444658299669, -0.7778706145406047, 0.7401877900293654, -0.028286914923635758, -0.07983680248040098, -0.07276787914397811, -0.12083398767208561, 0.6130118855113773, 0.17608678219861862, -0.3576951969734761, 0.7448373492810796, 0.49327899449599827, 0.17838815367554814, -0.6510703771547963, -0.013474518522804596, -0.768305196966563, 0.29585040210309466, 0.25676913773913507, 0.31183637077352977, -0.49696001560003916, -0.7711823139762155, 0.49788271081887625, -0.1077922978070128, 0.9713628071503069, 0.3231133283255934, 0.5925946712230612, 0.42960363434144133, 0.18499903083184513, -0.28268996200475127, -0.8582067487392269, -0.05097073687243086],
+                [-0.09923930812774324, -0.3519705030308195, -0.5324249787309568, -0.38344659435194806, -0.5603162739294437, 0.023628936977589284, -0.21728510082735783, 0.15511478894922695, -0.0534026141058264, -0.4150594876259464, -0.7949117898791688, -0.022746964365351084, 0.29413139200829275, -0.23286728154088868, 0.788254188525737, -0.024811814356151814, -0.6997891627400025, 0.000199317249452203, -0.4367562196278976, -0.037345332109490564, -0.10336869798580538, -0.1978366377436492, -0.18010802765467906, 0.1789010634037585, -0.011233888685233244, 0.2439852453961699, 0.09501824475626508, 0.36933472464912775, 0.3292819751466641, 0.06264268617581756, -0.5527934700213145, 0.1102959649987253, 0.0624195048763563, 0.16769395026733697, -0.7231294018298718, -0.10980863098626753, 0.4587868294462152, 0.33350657818902135, 0.07242475122799624, -0.03603467897217049, -0.09084484187633354, -0.07313137378649422, 0.027317500615013642, -0.7997818609978867, -0.7949117898791688, -0.1667184660196881, -0.32473223972013254],
+                [-0.10546690966142483, 0.8098048622677161, 0.9337360366389597, -0.08669247421627964, 0.12320671740638645, 0.3828443328659692, 0.3273567229664174, -0.02566935979825654, 0.3536875693380249, -0.04780869464141959, 0.13318478831082992, 0.08901542993126796, -0.03906561986847327, 0.2844031790455746, 0.2555964357115493, -0.520921858018868, -0.3454954820706544, 0.1809536483288676, -0.1623134244795855, -0.07204359591313952, 0.5560101320322556, 0.5704218395407594, 0.009911797095969812, -0.3982714451203163, -0.1392286745374849, -0.05029648126107462, -0.21012609925785602, -0.7450179503896213, -0.05309474952723074, 0.49249469261627155, -0.04076591218244098, 0.386132438953228, -0.38124784735857925, 0.13733377968655117, 0.16529375227692977, -0.06471796086182104, 0.1919093575153593, -0.7342265595216892, -0.11558835548418836, -0.4829426067083416, -0.15435652075883302, -0.3214914824386868, -0.2463482494904671, 0.21645021796172595, 0.13318478831082992, 0.2554824479403932, -0.048169566969884024],
+                [0.1598282110470779, 1.6773649525107108, 1.9687388967645794, 0.8258943486562655, 0.7908809218774421, 0.1345795565677791, 0.7641010471657426, -0.13189839222071914, 0.5776299778055957, 0.10290329251885923, 0.9444169635730921, 0.4668864941311793, -0.5475234007440578, -0.06861667885009291, -0.5250285215164519, 0.31591495658536106, 1.0934990913936535, 0.596717648962283, -0.14111814592188207, 0.1376758429462655, -0.3728046315660485, -0.299817322653135, 0.2910302182307955, -0.39364150379481894, -0.02562421897590024, 0.16400643283837946, -0.6297294947794875, -0.1175957687555062, -0.45457537929498293, 0.09593299836270974, 0.6070339007265625, 0.27187679301460665, 0.022977940379128273, -0.5617968676930232, 0.2459992787794105, 0.6714866074481249, 0.12048612701463617, -0.09716272948620566, 0.15095590206320433, -0.4523855214697942, -0.07791196569042753, -0.1979718149978804, -0.2105728854659858, 0.39833261220431604, 0.9444169635730921, 0.7694427668185154, 0.4238725435624477]
+            ],
+            scaler: {
+                mean: [12.9555, 9.6496, 6.8639, 55.0840, 4.0569, 2932.3150, 162.4623, 673.9929, 4.0102],
+                scale: [2.6710, 4.7647, 7.0979, 79.7105, 1.3786, 997.5015, 38.6062, 248.1073, 2.2874]
+            },
+            feature_names: [
+                "screen_size", "rear_camera_mp", "front_camera_mp", "internal_memory", "ram", "battery", 
+                "weight", "days_used", "model_age", "device_brand_Alcatel", "device_brand_Apple", 
+                "device_brand_Asus", "device_brand_BlackBerry", "device_brand_Celkon", "device_brand_Coolpad", 
+                "device_brand_Gionee", "device_brand_Google", "device_brand_HTC", "device_brand_Honor", 
+                "device_brand_Huawei", "device_brand_Infinix", "device_brand_Karbonn", "device_brand_LG", 
+                "device_brand_Lava", "device_brand_Lenovo", "device_brand_Meizu", "device_brand_Micromax", 
+                "device_brand_Microsoft", "device_brand_Motorola", "device_brand_Nokia", "device_brand_OnePlus", 
+                "device_brand_Oppo", "device_brand_Others", "device_brand_Panasonic", "device_brand_Realme", 
+                "device_brand_Samsung", "device_brand_Sony", "device_brand_Spice", "device_brand_Vivo", 
+                "device_brand_XOLO", "device_brand_Xiaomi", "device_brand_ZTE", "os_Others", "os_Windows", 
+                "os_iOS", "4g_yes", "5g_yes"
+            ],
+            reference_year: 2020,
+            price_ranges: {
+                'Budget': '< 150€',
+                'Mid-Range': '150€ - 300€',
+                'High-End': '300€ - 600€',
+                'Premium': '> 600€'
+            }
         };
 
-        const CATEGORIES = ['Budget', 'Mid-Range', 'High-End', 'Premium'];
+        // ==============================================================================
+        // LOGICA DI PREDIZIONE
+        // ==============================================================================
 
         document.getElementById('predict-btn').addEventListener('click', function () {
             const btn = this;
-            btn.innerHTML = '⏳ Elaborazione...';
+            btn.innerHTML = '⏳ Elaborazione in corso...';
             btn.disabled = true;
 
-            // Simulazione ritardo computazionale (wow factor)
             setTimeout(() => {
-                calculatePrediction();
+                try {
+                    performPrediction();
+                } catch (e) {
+                    console.error(e);
+                    alert("Errore durante il calcolo. Controlla i dati inseriti.");
+                }
                 btn.innerHTML = '🔮 Calcola Prezzo Giusto';
                 btn.disabled = false;
-            }, 800);
+            }, 600);
         });
 
-        function calculatePrediction() {
-            const ram = parseFloat(document.getElementById('ram').value);
-            const memory = parseFloat(document.getElementById('memory').value);
-            const year = parseInt(document.getElementById('year').value);
-            const brand = document.getElementById('brand').value;
+        function performPrediction() {
+            // 1. Raccogli dati dalla UI
+            const rawData = {
+                brand: document.getElementById('brand').value,
+                ram: parseFloat(document.getElementById('ram').value),
+                internal_memory: parseFloat(document.getElementById('memory').value),
+                rear_camera_mp: parseFloat(document.getElementById('rear_cam').value),
+                front_camera_mp: parseFloat(document.getElementById('front_cam').value),
+                battery: parseFloat(document.getElementById('battery').value),
+                screen_size: parseFloat(document.getElementById('screen').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                release_year: parseInt(document.getElementById('year').value),
+                has_4g: document.getElementById('4g').checked,
+                has_5g: document.getElementById('5g').checked,
+                days_used: 100 // Valore fittizio medio usato nel predictor.py
+            };
 
-            // Heuristic Logic (Porting di predictor.py)
-            // Semplificata per JS puro senza backend pickle
-            let score = 0;
-            score += (ram * 10);
-            score += (memory / 2);
-            score += (year - 2010) * 5;
-
-            if (brand === 'Apple' || brand === 'Samsung') score += 50;
-
-            let prediction = '';
-            let probabilities = [0.1, 0.2, 0.4, 0.3]; // Default fallback
-
-            if (score < 100) {
-                prediction = 'Budget';
-                probabilities = [0.75, 0.15, 0.08, 0.02];
-            } else if (score < 180) {
-                prediction = 'Mid-Range';
-                probabilities = [0.10, 0.70, 0.15, 0.05];
-            } else if (score < 250) {
-                prediction = 'High-End';
-                probabilities = [0.05, 0.15, 0.65, 0.15];
-            } else {
-                prediction = 'Premium';
-                probabilities = [0.02, 0.08, 0.20, 0.70];
+            // 2. Preprocessing
+            // Data Drift Management
+            let model_age = 0;
+            if (rawData.release_year <= MODEL_CONFIG.reference_year) {
+                model_age = MODEL_CONFIG.reference_year - rawData.release_year;
             }
 
-            renderResult(prediction, probabilities);
+            // Costruzione vettore feature (allineato a MODEL_CONFIG.feature_names)
+            const features = new Array(MODEL_CONFIG.feature_names.length).fill(0);
+
+            // Feature numeriche (prime 9 posizioni)
+            const numericValues = [
+                rawData.screen_size,
+                rawData.rear_camera_mp,
+                rawData.front_camera_mp,
+                rawData.internal_memory,
+                rawData.ram,
+                rawData.battery,
+                rawData.weight,
+                rawData.days_used,
+                model_age
+            ];
+
+            // Scaling
+            for (let i = 0; i < numericValues.length; i++) {
+                features[i] = (numericValues[i] - MODEL_CONFIG.scaler.mean[i]) / MODEL_CONFIG.scaler.scale[i];
+            }
+
+            // One-Hot Encoding Brand
+            const brandCol = "device_brand_" + rawData.brand;
+            const brandIdx = MODEL_CONFIG.feature_names.indexOf(brandCol);
+            if (brandIdx !== -1) features[brandIdx] = 1;
+
+            // One-Hot Encoding OS (iOS se Apple, altrimenti Others come fallback semplificato)
+            if (rawData.brand === 'Apple') {
+                const iosIdx = MODEL_CONFIG.feature_names.indexOf("os_iOS");
+                if (iosIdx !== -1) features[iosIdx] = 1;
+            } else {
+                const othersOsIdx = MODEL_CONFIG.feature_names.indexOf("os_Others");
+                if (othersOsIdx !== -1) features[othersOsIdx] = 1;
+            }
+
+            // One-Hot Encoding Connettività
+            if (rawData.has_4g) {
+                const idx4g = MODEL_CONFIG.feature_names.indexOf("4g_yes");
+                if (idx4g !== -1) features[idx4g] = 1;
+            }
+            if (rawData.has_5g) {
+                const idx5g = MODEL_CONFIG.feature_names.indexOf("5g_yes");
+                if (idx5g !== -1) features[idx5g] = 1;
+            }
+
+            // 3. Calcolo Logistic Regression (Multinomial/OvR)
+            const scores = MODEL_CONFIG.intercept.map((intercept, classIdx) => {
+                let score = intercept;
+                for (let j = 0; j < features.length; j++) {
+                    score += MODEL_CONFIG.coefficients[classIdx][j] * features[j];
+                }
+                return score;
+            });
+
+            // Softmax per ottenere probabilità
+            const exponents = scores.map(s => Math.exp(s));
+            const totalExp = exponents.reduce((a, b) => a + b, 0);
+            const probas = exponents.map(e => e / totalExp);
+
+            // Risultato finale
+            const maxProba = Math.max(...probas);
+            const predictionIdx = probas.indexOf(maxProba);
+            const prediction = MODEL_CONFIG.classes[predictionIdx];
+
+            renderResult(prediction, probas);
         }
 
         function renderResult(prediction, probas) {
             const wrapper = document.getElementById('result-wrapper');
-            const range = PRICE_RANGES[prediction];
-            const confidence = (probas[CATEGORIES.indexOf(prediction)] * 100).toFixed(1);
+            const range = MODEL_CONFIG.price_ranges[prediction];
+            const confidence = (Math.max(...probas) * 100).toFixed(1);
 
-            wrapper.innerHTML = `
-                <div id="result-display" style="display: block;">
+            // Generiamo l'HTML dei risultati
+            let html = `
+                <div id="result-display">
                     <div class="result-box result-${prediction}">
                         <h2>${getIcon(prediction)} Fascia: ${prediction}</h2>
                         <p>Prezzo stimato: <strong>${range}</strong></p>
                     </div>
 
-                    <div class="metric-container">
-                        <div class="metric">
-                            <div class="metric-value">${confidence}%</div>
-                            <div class="metric-label">🎯 Confidenza</div>
-                        </div>
+                    <div class="metric-card">
+                        <span class="metric-label">🎯 Confidenza</span>
+                        <span class="metric-value">${confidence}%</span>
                     </div>
 
-                    <div class="card chart-container">
-                        <h3 style="margin-bottom: 1.5rem; color: var(--primary);">📊 Distribuzione Probabilità</h3>
-                        ${CATEGORIES.map((cat, i) => `
-                            <div class="chart-item">
-                                <div class="chart-label">
-                                    <span>${cat}</span>
-                                    <span>${(probas[i] * 100).toFixed(0)}%</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="chart-fill" style="width: 0%" data-width="${probas[i] * 100}%"></div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
+                    <div class="card chart-section">
+                        <h3>📊 Distribuzione Probabilità</h3>
             `;
 
-            // Trigger animation
+            // Mappa delle classi ordinate per visualizzazione (non necessariamente l'ordine del modello)
+            const displayOrder = ["Budget", "Mid-Range", "High-End", "Premium"];
+            
+            displayOrder.forEach(cat => {
+                const idx = MODEL_CONFIG.classes.indexOf(cat);
+                const p = probas[idx];
+                html += `
+                    <div class="chart-item">
+                        <div class="chart-info">
+                            <span>${cat}</span>
+                            <span>${(p * 100).toFixed(0)}%</span>
+                        </div>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar-fill" style="width: 0%" data-width="${p * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            wrapper.innerHTML = html;
+
+            // Animazione barre
             setTimeout(() => {
-                document.querySelectorAll('.chart-fill').forEach(el => {
+                document.querySelectorAll('.chart-bar-fill').forEach(el => {
                     el.style.width = el.getAttribute('data-width');
                 });
             }, 100);
 
+            // Scroll al risultato
             wrapper.scrollIntoView({ behavior: 'smooth' });
         }
 
