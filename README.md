@@ -56,7 +56,7 @@ L'obiettivo è contrastare l'**asimmetria informativa** tra venditore e acquiren
 
 Prova il modello direttamente nel tuo browser senza installare nulla:
 
-[**👉 Accedi alla Web App su GitHub Pages**](https://kekkocoppola.github.io/DealHunter/)
+[**👉 Accedi alla Web App **](https://kekkocoppola.github.io/DealHunter/)
 
 ---
 
